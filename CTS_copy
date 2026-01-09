@@ -1,0 +1,290 @@
+# this code will make the browser always active and able to exit or minimixe the Forced full screen.
+
+
+(() => {
+  console.log('🛡️ Anti Focus Guard enabled');
+
+  // Keep document reported as visible
+  try {
+    Object.defineProperty(document, 'hidden', { get: () => false, configurable: true });
+  } catch (_) {
+    /* Property may not be configurable */
+  }
+  try {
+    Object.defineProperty(document, 'visibilityState', { get: () => 'visible', configurable: true });
+  } catch (_) {
+    /* Property may not be configurable */
+  }
+
+  // Force onvisibilitychange to a noop
+  document.onvisibilitychange = null;
+  document.onpagehide = null;
+  document.onblur = null;
+  window.onblur = null;
+  window.onfocus = null;
+
+  // Suppress visibilitychange / blur
+  const blockEvent = (e) => {
+    e.stopImmediatePropagation();
+    e.preventDefault();
+  };
+  ['visibilitychange', 'webkitvisibilitychange', 'blur', 'pagehide'].forEach((evt) => {
+    document.addEventListener(evt, blockEvent, true);
+    window.addEventListener(evt, blockEvent, true);
+  });
+
+  // Block future registrations of these events (sites trying to hook after load)
+  const blocked = new Set(['visibilitychange', 'webkitvisibilitychange', 'blur', 'pagehide']);
+  const origDocAdd = document.addEventListener.bind(document);
+  const origWinAdd = window.addEventListener.bind(window);
+  document.addEventListener = (type, listener, options) => {
+    if (blocked.has(type)) return; // silently ignore
+    return origDocAdd(type, listener, options);
+  };
+  window.addEventListener = (type, listener, options) => {
+    if (blocked.has(type)) return; // silently ignore
+    return origWinAdd(type, listener, options);
+  };
+
+  // Fake focus/blur APIs
+  const noop = () => {};
+  window.blur = noop;
+  window.onblur = noop;
+  window.focus = () => true;
+  window.onfocus = noop;
+
+  // Fake fullscreen state for sites that require it
+  try {
+    Object.defineProperty(document, 'fullscreenElement', { get: () => document.documentElement, configurable: true });
+  } catch (_) {
+    /* Property may not be configurable */
+  }
+  try {
+    Object.defineProperty(document, 'fullscreenEnabled', { get: () => true, configurable: true });
+  } catch (_) {
+    document.fullscreenEnabled = true;
+  }
+  try {
+    Object.defineProperty(document, 'webkitFullscreenEnabled', { get: () => true, configurable: true });
+  } catch (_) {
+    document.webkitFullscreenEnabled = true;
+  }
+  document.requestFullscreen = () => Promise.resolve();
+  document.documentElement.requestFullscreen = () => Promise.resolve();
+  document.exitFullscreen = () => Promise.resolve();
+
+  // Spoof focus checks via hasFocus
+  document.hasFocus = () => true;
+
+  // Keep inner dimension queries stable (approximate full screen)
+  const clampSize = () => {
+    const w = screen.width;
+    const h = screen.height;
+    try {
+      Object.defineProperty(window, 'innerWidth', { get: () => w });
+      Object.defineProperty(window, 'innerHeight', { get: () => h });
+    } catch (_) {
+      /* silent */
+    }
+  };
+  clampSize();
+
+  // Periodically dispatch focus/visibility events to satisfy timers
+  const emit = (type) => {
+    const evt = new Event(type, { bubbles: true, cancelable: true });
+    document.dispatchEvent(evt);
+    window.dispatchEvent(evt);
+  };
+  setInterval(() => {
+    emit('focus');
+    emit('visibilitychange');
+  }, 3000);
+
+  // Keep pointer/mouse movement alive to mimic activity
+  setInterval(() => {
+    const evt = new MouseEvent('mousemove', { bubbles: true, cancelable: true, clientX: 1, clientY: 1 });
+    window.dispatchEvent(evt);
+    document.dispatchEvent(evt);
+  }, 5000);
+
+  console.log('✅ Spoofing visibility, focus, fullscreen, and activity events');
+})();
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# this code is for typing in the browser instead of pasting
+
+(function() {
+    console.log('🚀 Chunked Typer Activated - Simulating Real Typing!');
+    
+    // Find the actual input element (works with ACE editor and regular inputs)
+    let element = document.activeElement;
+    
+    // If ACE editor detected, find the textarea
+    if (!element || element.tagName === 'BODY') {
+        element = document.querySelector('textarea.ace_text-input');
+        if (element) {
+            element.focus();
+            console.log('✓ ACE Editor textarea found and focused');
+        }
+    }
+    
+    // Fallback to any focused textarea or input
+    if (!element || element.tagName === 'BODY') {
+        element = document.querySelector('textarea:focus, input:focus, [contenteditable="true"]:focus');
+    }
+    
+    // Last resort - find any visible textarea/input
+    if (!element || element.tagName === 'BODY') {
+        element = document.querySelector('textarea:not([style*="display: none"]), input[type="text"]:not([style*="display: none"])');
+        if (element) {
+            element.focus();
+            console.log('✓ Found and focused input field');
+        }
+    }
+    
+    if (!element || element.tagName === 'BODY') {
+        console.error('❌ No input field found! Please click on the text field first.');
+        return;
+    }
+    
+    console.log(`✓ Target element: ${element.tagName}.${element.className}`);
+    
+    // Remove aria-hidden from all ancestors to prevent focus blocking
+    let parent = element.parentElement;
+    while (parent) {
+        if (parent.hasAttribute('aria-hidden')) {
+            parent.removeAttribute('aria-hidden');
+            console.log(`✓ Removed aria-hidden from: ${parent.tagName}#${parent.id}`);
+        }
+        parent = parent.parentElement;
+    }
+    
+    // Disable all paste blockers
+    element.onpaste = null;
+    element.oncut = null;
+    element.oncopy = null;
+    
+    // Remove readonly and disabled attributes
+    element.removeAttribute('readonly');
+    element.removeAttribute('disabled');
+    
+    // Get content from user via prompt
+    const textToType = prompt('📋 Paste your ENTIRE code here (it will be typed automatically):');
+    
+    if (!textToType) {
+        console.log('❌ No content provided!');
+        return;
+    }
+    
+    console.log(`⌨️ Received ${textToType.length} characters. Starting auto-typing...`);
+    
+    // Clear field first
+    element.value = '';
+    element.textContent = '';
+    
+    // Configuration: human-like speed, chunked to preserve structure
+    const chunkSize = 8;        // chars per insert (human-like pace)
+    const chunkDelay = 1200;    // ms between inserts (~6.6 chars/sec overall)
+
+    let offset = 0;
+    let stopRequested = false;
+
+    const onKeyDown = (e) => {
+        if (e.key === 'Delete') {
+            stopRequested = true;
+        }
+    };
+    document.addEventListener('keydown', onKeyDown, { capture: true });
+
+    const typeInterval = setInterval(() => {
+        if (stopRequested) {
+            clearInterval(typeInterval);
+            document.removeEventListener('keydown', onKeyDown, { capture: true });
+            console.log('⛔ Stopped by Delete key');
+            return;
+        }
+
+        if (offset >= textToType.length) {
+            clearInterval(typeInterval);
+            document.removeEventListener('keydown', onKeyDown, { capture: true });
+
+            // Final events to ensure content is registered
+            element.dispatchEvent(new Event('input', { bubbles: true }));
+            element.dispatchEvent(new Event('change', { bubbles: true }));
+            element.dispatchEvent(new KeyboardEvent('keyup', { bubbles: true }));
+            element.focus();
+
+            console.log(`✅ SUCCESS! Typed ${textToType.length} characters`);
+            console.log(`✅ Total time: ${(textToType.length / chunkSize * chunkDelay / 1000).toFixed(2)} seconds`);
+            return;
+        }
+
+        const chunk = textToType.slice(offset, offset + chunkSize);
+
+        // Insert chunk at the end (caret-position friendly)
+        const start = element.selectionStart ?? element.value.length;
+        const end = element.selectionEnd ?? element.value.length;
+        if (typeof element.setRangeText === 'function') {
+            element.setRangeText(chunk, start, end, 'end');
+        } else {
+            // Fallback for contentEditable
+            const before = element.value ?? '';
+            element.value = before.slice(0, start) + chunk + before.slice(end);
+        }
+
+        element.dispatchEvent(new KeyboardEvent('keydown', { key: chunk, bubbles: true }));
+        element.dispatchEvent(new KeyboardEvent('keypress', { key: chunk, bubbles: true }));
+        element.dispatchEvent(new Event('input', { bubbles: true, cancelable: true }));
+        element.dispatchEvent(new KeyboardEvent('keyup', { key: chunk, bubbles: true }));
+
+        offset += chunk.length;
+
+        if (offset % 200 === 0) {
+            const progress = Math.round((offset / textToType.length) * 100);
+            console.log(`⏳ Progress: ${progress}% (${offset}/${textToType.length} chars)`);
+        }
+    }, chunkDelay);
+
+    console.log('⏳ Typing in progress... Please do not click away from the input field!');
+    console.log(`⚙️ Settings: ${chunkSize} chars per insert, ${chunkDelay}ms delay`);
+})();
