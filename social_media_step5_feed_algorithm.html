@@ -1,0 +1,842 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Step 5: Interactive Feed Algorithm Demo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+            background: #000;
+            color: #fff;
+            line-height: 1.6;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            padding: 40px 40px 0 40px;
+        }
+
+        .nav-btn {
+            padding: 10px 16px;
+            background: #1a1a1a;
+            border: 1px solid #363636;
+            border-radius: 8px;
+            color: #a8a8a8;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .nav-btn:hover {
+            border-color: #667eea;
+            color: #fff;
+        }
+
+        .nav-btn.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-color: transparent;
+            color: #fff;
+        }
+
+        .header {
+            padding: 20px 40px 0;
+            margin-bottom: 20px;
+        }
+
+        .page-title {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .page-subtitle {
+            color: #a8a8a8;
+            font-size: 16px;
+        }
+
+        .main-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            padding: 30px 40px;
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        /* LEFT PANEL: FEED */
+        .feed-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .feed-title {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .current-post {
+            background: #1a1a1a;
+            border: 2px solid #667eea;
+            border-radius: 12px;
+            overflow: hidden;
+            min-height: 500px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .post-header {
+            padding: 15px;
+            border-bottom: 1px solid #363636;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .post-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: #fff;
+        }
+
+        .post-info h4 {
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .post-info p {
+            font-size: 11px;
+            color: #a8a8a8;
+            margin-top: 2px;
+        }
+
+        .category-tag {
+            margin-left: auto;
+            background: #667eea;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .post-content {
+            padding: 30px;
+            background: linear-gradient(135deg, #262626 0%, #1a1a1a 100%);
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            font-size: 24px;
+            color: #a8a8a8;
+            min-height: 200px;
+        }
+
+        .post-actions {
+            padding: 15px;
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 10px;
+            border-top: 1px solid #363636;
+        }
+
+        .action-btn {
+            padding: 10px;
+            background: #262626;
+            border: 1px solid #363636;
+            border-radius: 8px;
+            color: #fff;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+        }
+
+        .action-btn:hover {
+            border-color: #667eea;
+            background: #2a2a2a;
+        }
+
+        .action-btn.active {
+            background: #667eea;
+            border-color: #667eea;
+        }
+
+        /* RIGHT PANEL: ALGORITHM BRAIN */
+        .algorithm-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            max-height: 100vh;
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+
+        .algorithm-panel::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .algorithm-panel::-webkit-scrollbar-track {
+            background: #0a0a0a;
+        }
+
+        .algorithm-panel::-webkit-scrollbar-thumb {
+            background: #363636;
+            border-radius: 4px;
+        }
+
+        .section {
+            background: #1a1a1a;
+            border: 1px solid #363636;
+            border-radius: 12px;
+            padding: 20px;
+        }
+
+        .section-title {
+            font-size: 14px;
+            font-weight: 700;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #667eea;
+        }
+
+        /* INTEREST SCORES */
+        .interest-item {
+            margin-bottom: 15px;
+        }
+
+        .interest-label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            margin-bottom: 6px;
+        }
+
+        .interest-label-name {
+            font-weight: 600;
+        }
+
+        .interest-label-score {
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        .interest-bar {
+            height: 8px;
+            background: #262626;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .interest-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            transition: width 0.3s ease;
+            border-radius: 4px;
+        }
+
+        /* LOGIC LOG */
+        .logic-log {
+            max-height: 250px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column-reverse;
+        }
+
+        .logic-entry {
+            background: #262626;
+            border-left: 3px solid #667eea;
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: 8px;
+            font-size: 11px;
+            line-height: 1.4;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .logic-entry.like {
+            border-left-color: #667eea;
+        }
+
+        .logic-entry.comment {
+            border-left-color: #764ba2;
+        }
+
+        .logic-entry.share {
+            border-left-color: #fbbf24;
+        }
+
+        .logic-entry.friend {
+            border-left-color: #ec4899;
+        }
+
+        .logic-time {
+            color: #a8a8a8;
+            font-size: 10px;
+        }
+
+        /* CANDIDATE QUEUE */
+        .queue-post {
+            background: #262626;
+            border: 1px solid #363636;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 10px;
+            font-size: 12px;
+        }
+
+        .queue-post-category {
+            display: inline-block;
+            background: #363636;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 10px;
+            color: #a8a8a8;
+            margin-right: 8px;
+        }
+
+        .queue-post-score {
+            color: #667eea;
+            font-weight: 600;
+            float: right;
+        }
+
+        /* FRIENDS ACTIVITY */
+        .friend-activity {
+            background: #262626;
+            border: 1px solid #ec4899;
+            border-radius: 8px;
+            padding: 10px;
+            margin-bottom: 10px;
+            font-size: 11px;
+        }
+
+        .friend-name {
+            font-weight: 600;
+            color: #fff;
+        }
+
+        .friend-action {
+            color: #a8a8a8;
+        }
+
+        /* INFO BOX */
+        .info-box {
+            background: #262626;
+            border-left: 4px solid #667eea;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 30px;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        .info-box ul {
+            list-style: none;
+            padding-top: 10px;
+        }
+
+        .info-box li {
+            margin: 8px 0;
+        }
+
+        .demo-controls {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 8px;
+            color: #fff;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 13px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #262626;
+            color: #667eea;
+            border: 1px solid #667eea;
+        }
+
+        @media (max-width: 1200px) {
+            .main-container {
+                grid-template-columns: 1fr;
+            }
+
+            .algorithm-panel {
+                max-height: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="nav-links">
+        <a href="index.html" class="nav-btn">← Home</a>
+        <a href="social_media_step1_create_profile.html" class="nav-btn">Step 1</a>
+        <a href="social_media_step2_add_friends.html" class="nav-btn">Step 2</a>
+        <a href="social_media_step3_network_graph.html" class="nav-btn">Step 3</a>
+        <a href="social_media_step4_search_system.html" class="nav-btn">Step 4</a>
+        <a href="social_media_step5_feed_algorithm.html" class="nav-btn active">Step 5</a>
+        <a href="social_media_step6_algorithm_deep_dive.html" class="nav-btn">Step 6</a>
+    </div>
+
+    <div class="header">
+        <h1 class="page-title">Step 5: Interactive Recommendation Algorithm</h1>
+        <p class="page-subtitle">See exactly how the algorithm decides what to show you in real-time 🤖</p>
+    </div>
+
+    <div class="main-container">
+        <!-- LEFT PANEL: FEED -->
+        <div class="feed-panel">
+            <div class="feed-title">📱 Your Personalized Feed</div>
+            <div class="current-post">
+                <div class="post-header">
+                    <div class="post-avatar" id="currentAvatar">?</div>
+                    <div class="post-info">
+                        <h4 id="currentAuthor">Loading...</h4>
+                        <p id="currentTime">just now</p>
+                    </div>
+                    <div class="category-tag" id="currentCategory">Tech</div>
+                </div>
+                <div class="post-content" id="currentContent">Loading feed...</div>
+                <div class="post-actions">
+                    <button class="action-btn" onclick="interactWithPost('like')">
+                        <span id="likeEmoji">👍</span> Like
+                    </button>
+                    <button class="action-btn" onclick="interactWithPost('comment')">
+                        <span id="commentEmoji">💬</span> Comment
+                    </button>
+                    <button class="action-btn" onclick="interactWithPost('share')">
+                        <span id="shareEmoji">↗️</span> Share
+                    </button>
+                </div>
+                </div>
+
+                <!-- NEXT UP: predicted next post -->
+                <div style="margin-top:16px;">
+                    <div class="section" style="padding:12px;">
+                        <div style="font-weight:700; margin-bottom:8px; color:#a8a8a8;">Next Up</div>
+                        <div id="nextUp" style="background:#0f0f0f; padding:12px; border-radius:8px; border:1px solid #262626; min-height:64px; display:flex; align-items:center; gap:10px;">
+                            <div style="width:44px; height:44px; border-radius:50%; background:linear-gradient(135deg,#667eea 0%,#764ba2 100%); display:flex; align-items:center; justify-content:center; font-weight:700;">?</div>
+                            <div style="flex:1;">
+                                <div id="nextUpAuthor" style="font-weight:700;">—</div>
+                                <div id="nextUpContent" style="font-size:12px; color:#a8a8a8;">—</div>
+                            </div>
+                            <div id="nextUpCategory" style="background:#363636; padding:6px 10px; border-radius:16px; font-size:12px; color:#a8a8a8;">—</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="demo-controls">
+                <button class="btn" onclick="startDemo()">▶️ Start Demo</button>
+                <button class="btn btn-secondary" onclick="resetAlgorithm()">🔄 Reset</button>
+            </div>
+        </div>
+
+        <!-- RIGHT PANEL: ALGORITHM BRAIN -->
+        <div class="algorithm-panel">
+            <!-- INTEREST SCORES -->
+            <div class="section">
+                <div class="section-title">📊 Your Interest Profile</div>
+                <div id="interestScores"></div>
+                <div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid #363636; font-size: 11px; color: #a8a8a8;">
+                    Higher scores = More posts in that category
+                </div>
+            </div>
+
+            <!-- ALGORITHM TRIGGER -->
+            <div class="section">
+                <div class="section-title">⚡ Algorithm Decision</div>
+                <div id="algorithmTrigger" style="font-size: 12px; color: #a8a8a8; line-height: 1.6;">
+                    <p>Click Like, Comment, or Share to see how the algorithm reacts!</p>
+                </div>
+            </div>
+
+            <!-- FRIENDS ACTIVITY -->
+            <div class="section">
+                <div class="section-title">👥 Friends Activity</div>
+                <div id="friendsActivity" style="font-size: 12px;">
+                    <p style="color: #a8a8a8;">Your friends are interacting with posts...</p>
+                </div>
+            </div>
+
+            <!-- LOGIC LOG -->
+            <div class="section">
+                <div class="section-title">📝 Live Action Log</div>
+                <div class="logic-log" id="logicLog">
+                    <div class="logic-entry like">
+                        <strong>🎬 Demo Started</strong><br>
+                        <span class="logic-time">Ready to show algorithm behavior</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CANDIDATE QUEUE -->
+            <div class="section">
+                <div class="section-title">📋 Next Posts (Queue)</div>
+                <div id="candidateQueue" style="font-size: 11px;">
+                    <p style="color: #a8a8a8;">Queue will appear after first interaction</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- INFO BOX -->
+    <div style="padding: 0 40px;">
+        <div class="info-box">
+            <strong>🎓 How This Algorithm Works:</strong>
+            <ul>
+                <li>• <strong>Content-Based Filtering:</strong> Every Like adds 1pt, Comment adds 3pts, Share adds 5pts to that category's score</li>
+                <li>• <strong>Collaborative Filtering:</strong> When friends interact with posts, similar posts appear in your feed</li>
+                <li>• <strong>Weighting System:</strong> Higher scoring categories get shown more often</li>
+                <li>• <strong>Filter Bubbles:</strong> If you only engage with one category, you'll eventually see ONLY that category (Echo Chamber)</li>
+                <li>• <strong>Engagement Maximization:</strong> The algorithm prioritizes keeping you scrolling, not showing you diverse content</li>
+            </ul>
+        </div>
+
+        <div class="info-box" style="border-left-color: #fbbf24; margin-bottom: 40px;">
+            <strong style="color: #fbbf24;">⚠️ Try This Experiment:</strong>
+            <ul>
+                <li>• Only like "Sports" posts for 5+ interactions</li>
+                <li>• Watch your Interest Profile become 100% Sports</li>
+                <li>• Notice how you'll eventually see NOTHING but Sports (Filter Bubble)</li>
+                <li>• This is why social media creates echo chambers!</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        // ============= DATA =============
+        const mockPosts = [
+            { id: 1, author: 'Tech Daily', category: 'Tech', content: '🚀 New AI Breakthrough Announced!', avatar: 'T' },
+            { id: 2, author: 'Sports Hub', category: 'Sports', content: '⚽ Epic Goal Scored!', avatar: 'S' },
+            { id: 3, author: 'Nature Photos', category: 'Nature', content: '🌲 Beautiful Mountain Sunrise', avatar: 'N' },
+            { id: 4, author: 'Food Lover', category: 'Food', content: '🍕 Recipe: Perfect Pizza Dough', avatar: 'F' },
+            { id: 5, author: 'Gaming Zone', category: 'Gaming', content: '🎮 New Game Release Trailer', avatar: 'G' },
+            { id: 6, author: 'Tech Weekly', category: 'Tech', content: '💻 Best Laptops 2025', avatar: 'T' },
+            { id: 7, author: 'Cooking Expert', category: 'Food', content: '🍜 Ramen Master Class', avatar: 'C' },
+            { id: 8, author: 'Gaming Pro', category: 'Gaming', content: '🏆 Esports Championship Highlights', avatar: 'G' },
+            { id: 9, author: 'Nature Explorer', category: 'Nature', content: '🦁 Wildlife Documentary Scene', avatar: 'N' },
+            { id: 10, author: 'Sports Legend', category: 'Sports', content: '🏀 Championship Game Recap', avatar: 'S' },
+        ];
+
+        const categories = ['Tech', 'Sports', 'Nature', 'Food', 'Gaming'];
+        const mockFriends = ['Alex', 'Jordan', 'Casey', 'Taylor', 'Morgan'];
+
+        // ============= STATE =============
+        let userProfile = {
+            Tech: 20,
+            Sports: 20,
+            Nature: 20,
+            Food: 20,
+            Gaming: 20
+        };
+
+        let postHistory = [];
+        let currentPostIndex = 0;
+        let logHistory = [];
+        let allPosts = [...mockPosts];
+
+        // ============= INITIALIZATION =============
+        function initializeAlgorithm() {
+            currentPostIndex = 0;
+            postHistory = [];
+            logHistory = [];
+            allPosts = [...mockPosts];
+            showCurrentPost();
+            updateInterestScores();
+            addLog('🎬 Algorithm Demo Initialized!', 'like');
+        }
+
+        // ============= DISPLAY FUNCTIONS =============
+        let currentDisplayedPost = null;
+
+        function showCurrentPost() {
+            const post = getNextPost();
+            if (!post) return;
+
+            currentDisplayedPost = post;
+
+            document.getElementById('currentAvatar').textContent = post.avatar;
+            document.getElementById('currentAuthor').textContent = post.author;
+            document.getElementById('currentContent').textContent = post.content;
+            document.getElementById('currentCategory').textContent = post.category;
+            document.getElementById('currentTime').textContent = 'just now';
+
+            // Reset button states
+            document.querySelectorAll('.action-btn').forEach(btn => btn.classList.remove('active'));
+
+            // Update prediction and candidate queue
+            updateCandidateQueue();
+            updateNextUp(post);
+        }
+
+        // Predict the next post (the one algorithm is most likely to show next)
+        function predictNextPost(current) {
+            // Determine top candidates sorted by user's category score
+            const sortedPosts = allPosts.slice().sort((a, b) => userProfile[b.category] - userProfile[a.category]);
+
+            // Prefer a post not equal to current; try to pick highest scoring different post
+            for (let p of sortedPosts) {
+                if (!current || p.id !== current.id) return p;
+            }
+            // fallback
+            return sortedPosts[0] || null;
+        }
+
+        function updateNextUp(current) {
+            const next = predictNextPost(current);
+            const container = document.getElementById('nextUp');
+            if (!next) {
+                document.getElementById('nextUpAuthor').textContent = '—';
+                document.getElementById('nextUpContent').textContent = '—';
+                document.getElementById('nextUpCategory').textContent = '—';
+                container.querySelector('div').textContent = '?';
+                return;
+            }
+
+            document.getElementById('nextUpAuthor').textContent = next.author;
+            document.getElementById('nextUpContent').textContent = next.content;
+            document.getElementById('nextUpCategory').textContent = next.category;
+            // avatar circle
+            container.querySelector('div').textContent = next.avatar;
+        }
+
+        function getNextPost() {
+            // Sort by user interest scores
+            const sortedPosts = allPosts.sort((a, b) => {
+                return userProfile[b.category] - userProfile[a.category];
+            });
+
+            if (sortedPosts.length === 0) return null;
+
+            // With 70% chance show top category, 30% show discovery
+            const useTopCategory = Math.random() < 0.7;
+            if (useTopCategory) {
+                return sortedPosts[0];
+            } else {
+                return sortedPosts[Math.floor(Math.random() * sortedPosts.length)];
+            }
+        }
+
+        function updateInterestScores() {
+            let html = '';
+            let total = Object.values(userProfile).reduce((a, b) => a + b, 0);
+
+            categories.forEach(cat => {
+                const score = userProfile[cat];
+                const percentage = Math.round((score / total) * 100);
+                html += `
+                    <div class="interest-item">
+                        <div class="interest-label">
+                            <span class="interest-label-name">${cat}</span>
+                            <span class="interest-label-score">${percentage}%</span>
+                        </div>
+                        <div class="interest-bar">
+                            <div class="interest-bar-fill" style="width: ${percentage}%"></div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            document.getElementById('interestScores').innerHTML = html;
+        }
+
+        function addLog(message, type = 'like') {
+            const now = new Date().toLocaleTimeString();
+            const entry = document.createElement('div');
+            entry.className = `logic-entry ${type}`;
+            entry.innerHTML = `${message}<br><span class="logic-time">${now}</span>`;
+            document.getElementById('logicLog').appendChild(entry);
+
+            // Keep log to 10 entries
+            const logs = document.getElementById('logicLog').querySelectorAll('.logic-entry');
+            if (logs.length > 10) {
+                logs[0].remove();
+            }
+        }
+
+        function updateAlgorithmTrigger(message) {
+            document.getElementById('algorithmTrigger').innerHTML = `<p style="font-size: 12px; color: #a8a8a8; line-height: 1.6;">${message}</p>`;
+        }
+
+        function showFriendsActivity() {
+            const randomFriend = mockFriends[Math.floor(Math.random() * mockFriends.length)];
+            const randomCategory = categories[Math.floor(Math.random() * categories.length)];
+            const actions = ['liked', 'shared', 'commented on'];
+            const action = actions[Math.floor(Math.random() * actions.length)];
+
+            const activity = `<div class="friend-activity">
+                <span class="friend-name">${randomFriend}</span> 
+                <span class="friend-action">${action} a ${randomCategory} post</span>
+            </div>`;
+
+            document.getElementById('friendsActivity').innerHTML = activity;
+
+            // Inject a post from this category with 40% chance
+            if (Math.random() < 0.4) {
+                const categoryPosts = allPosts.filter(p => p.category === randomCategory);
+                if (categoryPosts.length > 0) {
+                    addLog(`📌 Showing ${randomCategory} post because <strong>${randomFriend}</strong> interacted with similar content`, 'friend');
+                }
+            }
+        }
+
+        function updateCandidateQueue() {
+            const sorted = allPosts.sort((a, b) => {
+                return userProfile[b.category] - userProfile[a.category];
+            });
+
+            let html = '';
+            for (let i = 0; i < 3 && i < sorted.length; i++) {
+                const post = sorted[i];
+                const score = userProfile[post.category];
+                html += `
+                    <div class="queue-post">
+                        <span class="queue-post-category">${post.category}</span>
+                        <span class="queue-post-score">${score} pts</span>
+                        <div style="clear: both; margin-top: 8px;">${post.content}</div>
+                    </div>
+                `;
+            }
+            document.getElementById('candidateQueue').innerHTML = html;
+        }
+
+        // ============= INTERACTION LOGIC =============
+        function interactWithPost(action) {
+            const post = allPosts.sort((a, b) => {
+                return userProfile[b.category] - userProfile[a.category];
+            })[0];
+
+            let points = 0;
+            let emoji = '';
+            let actionName = '';
+
+            if (action === 'like') {
+                points = 1;
+                emoji = '👍';
+                actionName = 'Liked';
+            } else if (action === 'comment') {
+                points = 3;
+                emoji = '💬';
+                actionName = 'Commented on';
+            } else if (action === 'share') {
+                points = 5;
+                emoji = '↗️';
+                actionName = 'Shared';
+            }
+
+            // Update interest profile
+            userProfile[post.category] += points;
+
+            // Update UI
+            updateInterestScores();
+            updateCandidateQueue();
+            showFriendsActivity();
+
+            // Log the action
+            const logMsg = `${emoji} <strong>${actionName}</strong> <strong>${post.category}</strong> post<br>→ +${points}pt to ${post.category} (Total: ${userProfile[post.category]})`;
+            addLog(logMsg, action);
+
+            // Update trigger message
+            const reason = action === 'like' ? 'You showed interest in this content' :
+                           action === 'comment' ? 'Deep engagement detected - similar posts boosted' :
+                           'High intent signal - this category gets priority';
+            updateAlgorithmTrigger(`✅ ${actionName} recorded! ${reason}`);
+
+            // Move to next post (with short delay)
+            setTimeout(() => {
+                showCurrentPost();
+            }, 500);
+
+            // Mark button as active
+            event.target.closest('.action-btn').classList.add('active');
+        }
+
+        function resetAlgorithm() {
+            userProfile = {
+                Tech: 20,
+                Sports: 20,
+                Nature: 20,
+                Food: 20,
+                Gaming: 20
+            };
+            postHistory = [];
+            logHistory = [];
+            currentPostIndex = 0;
+            
+            document.getElementById('logicLog').innerHTML = `
+                <div class="logic-entry like">
+                    <strong>🔄 Algorithm Reset</strong><br>
+                    <span class="logic-time">All scores returned to 20%</span>
+                </div>
+            `;
+            
+            initializeAlgorithm();
+        }
+
+        function startDemo() {
+            initializeAlgorithm();
+        }
+
+        // ============= INITIALIZE ON LOAD =============
+        window.addEventListener('DOMContentLoaded', () => {
+            initializeAlgorithm();
+        });
+    </script>
+</body>
+</html>

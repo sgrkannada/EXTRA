@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dark Truths of Social Media</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+            background: #000;
+            color: #fff;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px;
+        }
+
+        .header {
+            margin-bottom: 30px;
+        }
+
+        .page-title {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .page-subtitle {
+            color: #a8a8a8;
+            font-size: 16px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .nav-btn {
+            padding: 10px 16px;
+            background: #1a1a1a;
+            border: 1px solid #363636;
+            border-radius: 8px;
+            color: #a8a8a8;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .nav-btn:hover {
+            border-color: #667eea;
+            color: #fff;
+        }
+
+        .warning-banner {
+            background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
+            padding: 30px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .warning-title {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .warning-subtitle {
+            font-size: 14px;
+            color: #fecaca;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: #1a1a1a;
+            border: 1px solid #363636;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 32px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: #a8a8a8;
+            line-height: 1.5;
+        }
+
+        .truths-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .truth-card {
+            background: #1a1a1a;
+            border: 1px solid #363636;
+            border-radius: 12px;
+            padding: 25px;
+        }
+
+        .truth-number {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
+            border-radius: 50%;
+            font-weight: 700;
+            margin-bottom: 15px;
+        }
+
+        .truth-title {
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+
+        .truth-content {
+            font-size: 13px;
+            color: #a8a8a8;
+            line-height: 1.6;
+        }
+
+        .info-box {
+            background: #1a1a1a;
+            border-left: 4px solid #dc2626;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 30px 0;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        .info-box strong {
+            color: #fca5a5;
+        }
+
+        .info-box ul {
+            list-style: none;
+            padding-top: 10px;
+        }
+
+        .info-box li {
+            margin: 8px 0;
+        }
+
+        @media (max-width: 768px) {
+            .stats-grid, .truths-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="nav-links">
+            <a href="index.html" class="nav-btn">← Home</a>
+            <a href="social_media_dark_truths.html" class="nav-btn" style="background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%); border: none; color: #fff;">Dark Truths</a>
+            <a href="social_media_statistics.html" class="nav-btn">Statistics</a>
+        </div>
+
+        <div class="header">
+            <h1 class="page-title">Dark Truths of Social Media</h1>
+            <p class="page-subtitle">What you should know about how platforms manipulate you</p>
+        </div>
+
+        <div class="warning-banner">
+            <div class="warning-title">⚠️ Read This Carefully</div>
+            <div class="warning-subtitle">Understanding how social media companies profit from your attention and data</div>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-number">3.5B+</div>
+                <div class="stat-label">Active Users Worldwide</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">$115B</div>
+                <div class="stat-label">Annual Ad Revenue</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">4+ hrs</div>
+                <div class="stat-label">Average Daily Screen Time</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">98%</div>
+                <div class="stat-label">Profit from Ads</div>
+            </div>
+        </div>
+
+        <div class="truths-grid">
+            <div class="truth-card">
+                <div class="truth-number">1</div>
+                <div class="truth-title">Designed for Addiction</div>
+                <div class="truth-content">
+                    Every feature is engineered to keep you scrolling. Notifications, streaks, infinite scroll, variable rewards - these are the same tactics casinos use. The algorithm learns what makes YOU stop scrolling and shows you more of it.
+                </div>
+            </div>
+
+            <div class="truth-card">
+                <div class="truth-number">2</div>
+                <div class="truth-title">Your Data is Sold</div>
+                <div class="truth-content">
+                    Every like, search, location, contact you message - all is tracked and sold to advertisers. Companies pay billions to know exactly who you are, what you want, and how to manipulate you into buying things.
+                </div>
+            </div>
+
+            <div class="truth-card">
+                <div class="truth-number">3</div>
+                <div class="truth-title">Mental Health Crisis</div>
+                <div class="truth-content">
+                    Social media increases depression, anxiety, and low self-esteem - especially in teenagers. Constant comparison, fake lives, cyberbullying, and validation-seeking (likes/comments) damage real mental health.
+                </div>
+            </div>
+
+            <div class="truth-card">
+                <div class="truth-number">4</div>
+                <div class="truth-title">Filter Bubbles & Misinformation</div>
+                <div class="truth-content">
+                    Algorithm shows you what you want to see, not what's true. This creates "echo chambers" where you only see views similar to yours. Misinformation spreads 6x faster than truth on social media.
+                </div>
+            </div>
+
+            <div class="truth-card">
+                <div class="truth-number">5</div>
+                <div class="truth-title">Attention Theft</div>
+                <div class="truth-content">
+                    Social media is optimized to steal your attention from studying, family, health, and real relationships. You think you're checking for "5 minutes" but lose hours. Your productivity and real life suffer.
+                </div>
+            </div>
+
+            <div class="truth-card">
+                <div class="truth-number">6</div>
+                <div class="truth-title">Environmental Impact</div>
+                <div class="truth-content">
+                    Data centers powering social media consume enormous energy. Every video you watch, every post you like contributes to carbon emissions. The environmental cost of your digital life is massive.
+                </div>
+            </div>
+        </div>
+
+        <div class="info-box">
+            <strong>What You Should Do:</strong>
+            <ul>
+                <li>• Use time limits - set app time limits to 30 min/day</li>
+                <li>• Turn off notifications - reclaim your peace</li>
+                <li>• Delete the app - not the account, just the app</li>
+                <li>• Unfollow toxic accounts - curate better feeds</li>
+                <li>• Focus on real relationships - call friends instead</li>
+                <li>• Invest in hobbies - things that add real value</li>
+                <li>• Read critical - fact-check everything you see</li>
+                <li>• Protect your data - use privacy settings</li>
+            </ul>
+        </div>
+    </div>
+</body>
+</html>
