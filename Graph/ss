@@ -1,0 +1,2578 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Step 5: Interactive Feed Algorithm Demo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+            background: #000;
+            color: #fff;
+            line-height: 1.6;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            padding: 40px 40px 0 40px;
+        }
+
+        .nav-btn {
+            padding: 10px 16px;
+            background: #1a1a1a;
+            border: 1px solid #363636;
+            border-radius: 8px;
+            color: #a8a8a8;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .nav-btn:hover {
+            border-color: #667eea;
+            color: #fff;
+        }
+
+        .nav-btn.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-color: transparent;
+            color: #fff;
+        }
+
+        .header {
+            padding: 20px 40px 0;
+            margin-bottom: 20px;
+        }
+
+        .page-title {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .page-subtitle {
+            color: #a8a8a8;
+            font-size: 16px;
+        }
+
+        .main-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            padding: 30px 40px;
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        /* LEFT PANEL: FEED */
+        .feed-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .feed-title {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .current-post {
+            background: #1a1a1a;
+            border: 2px solid #667eea;
+            border-radius: 12px;
+            overflow: hidden;
+            min-height: 500px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .post-header {
+            padding: 15px;
+            border-bottom: 1px solid #363636;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .post-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: #fff;
+        }
+
+        .post-info h4 {
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .post-info p {
+            font-size: 11px;
+            color: #a8a8a8;
+            margin-top: 2px;
+        }
+
+        .category-tag {
+            margin-left: auto;
+            background: #667eea;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .post-content {
+            padding: 30px;
+            background: linear-gradient(135deg, #262626 0%, #1a1a1a 100%);
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            font-size: 24px;
+            color: #a8a8a8;
+            min-height: 200px;
+        }
+
+        .post-actions {
+            padding: 15px;
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 10px;
+            border-top: 1px solid #363636;
+        }
+
+        .action-btn {
+            padding: 10px;
+            background: #262626;
+            border: 1px solid #363636;
+            border-radius: 8px;
+            color: #fff;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+        }
+
+        .action-btn:hover {
+            border-color: #667eea;
+            background: #2a2a2a;
+        }
+
+        .action-btn.active {
+            background: #667eea;
+            border-color: #667eea;
+        }
+
+        /* RIGHT PANEL: ALGORITHM BRAIN */
+        .algorithm-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            max-height: 100vh;
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+
+        .algorithm-panel::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .algorithm-panel::-webkit-scrollbar-track {
+            background: #0a0a0a;
+        }
+
+        .algorithm-panel::-webkit-scrollbar-thumb {
+            background: #363636;
+            border-radius: 4px;
+        }
+
+        .section {
+            background: #1a1a1a;
+            border: 1px solid #363636;
+            border-radius: 12px;
+            padding: 20px;
+        }
+
+        .section-title {
+            font-size: 14px;
+            font-weight: 700;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #667eea;
+        }
+
+        /* INTEREST SCORES */
+        .interest-item {
+            margin-bottom: 15px;
+        }
+
+        .interest-label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            margin-bottom: 6px;
+        }
+
+        .interest-label-name {
+            font-weight: 600;
+        }
+
+        .interest-label-score {
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        .interest-bar {
+            height: 8px;
+            background: #262626;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .interest-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            transition: width 0.3s ease;
+            border-radius: 4px;
+        }
+
+        /* LOGIC LOG */
+        .logic-log {
+            max-height: 250px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column-reverse;
+        }
+
+        .logic-entry {
+            background: #262626;
+            border-left: 3px solid #667eea;
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: 8px;
+            font-size: 11px;
+            line-height: 1.4;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .logic-entry.like {
+            border-left-color: #667eea;
+        }
+
+        .logic-entry.comment {
+            border-left-color: #764ba2;
+        }
+
+        .logic-entry.share {
+            border-left-color: #fbbf24;
+        }
+
+        .logic-entry.friend {
+            border-left-color: #ec4899;
+        }
+
+        .logic-time {
+            color: #a8a8a8;
+            font-size: 10px;
+        }
+
+        /* CANDIDATE QUEUE */
+        .queue-post {
+            background: #262626;
+            border: 1px solid #363636;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 10px;
+            font-size: 12px;
+        }
+
+        .queue-post-category {
+            display: inline-block;
+            background: #363636;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 10px;
+            color: #a8a8a8;
+            margin-right: 8px;
+        }
+
+        .queue-post-score {
+            color: #667eea;
+            font-weight: 600;
+            float: right;
+        }
+
+        /* FRIENDS ACTIVITY */
+        .friend-activity {
+            background: #262626;
+            border: 1px solid #ec4899;
+            border-radius: 8px;
+            padding: 10px;
+            margin-bottom: 10px;
+            font-size: 11px;
+        }
+
+        .friend-name {
+            font-weight: 600;
+            color: #fff;
+        }
+
+        .friend-action {
+            color: #a8a8a8;
+        }
+
+        /* INFO BOX */
+        .info-box {
+            background: #262626;
+            border-left: 4px solid #667eea;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 30px;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        .info-box ul {
+            list-style: none;
+            padding-top: 10px;
+        }
+
+        .info-box li {
+            margin: 8px 0;
+        }
+
+        .demo-controls {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 8px;
+            color: #fff;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 13px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #262626;
+            color: #667eea;
+            border: 1px solid #667eea;
+        }
+
+        @media (max-width: 1200px) {
+            .main-container {
+                grid-template-columns: 1fr;
+            }
+
+            .algorithm-panel {
+                max-height: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="nav-links">
+        <a href="index.html" class="nav-btn">← Home</a>
+        <a href="social_media_step1_create_profile.html" class="nav-btn">Step 1</a>
+        <a href="social_media_step2_add_friends.html" class="nav-btn">Step 2</a>
+        <a href="social_media_step3_network_graph.html" class="nav-btn">Step 3</a>
+        <a href="social_media_step4_search_system.html" class="nav-btn">Step 4</a>
+        <a href="social_media_step5_feed_algorithm.html" class="nav-btn active">Step 5</a>
+        <a href="social_media_step6_algorithm_deep_dive.html" class="nav-btn">Step 6</a>
+    </div>
+
+    <div class="header">
+        <h1 class="page-title">Step 5: Interactive Recommendation Algorithm</h1>
+        <p class="page-subtitle">See exactly how the algorithm decides what to show you in real-time 🤖</p>
+    </div>
+
+    <div class="main-container">
+        <!-- LEFT PANEL: FEED -->
+        <div class="feed-panel">
+            <div class="feed-title">📱 Your Personalized Feed</div>
+            <div class="current-post">
+                <div class="post-header">
+                    <div class="post-avatar" id="currentAvatar">?</div>
+                    <div class="post-info">
+                        <h4 id="currentAuthor">Loading...</h4>
+                        <p id="currentTime">just now</p>
+                    </div>
+                    <div class="category-tag" id="currentCategory">Tech</div>
+                </div>
+                <div class="post-content" id="currentContent">Loading feed...</div>
+                <div class="post-actions">
+                    <button class="action-btn" onclick="interactWithPost('like')">
+                        <span id="likeEmoji">👍</span> Like
+                    </button>
+                    <button class="action-btn" onclick="interactWithPost('comment')">
+                        <span id="commentEmoji">💬</span> Comment
+                    </button>
+                    <button class="action-btn" onclick="interactWithPost('share')">
+                        <span id="shareEmoji">↗️</span> Share
+                    </button>
+                </div>
+                </div>
+
+                <!-- NEXT UP: predicted next post -->
+                <div style="margin-top:16px;">
+                    <div class="section" style="padding:12px;">
+                        <div style="font-weight:700; margin-bottom:8px; color:#a8a8a8;">Next Up</div>
+                        <div id="nextUp" style="background:#0f0f0f; padding:12px; border-radius:8px; border:1px solid #262626; min-height:64px; display:flex; align-items:center; gap:10px;">
+                            <div style="width:44px; height:44px; border-radius:50%; background:linear-gradient(135deg,#667eea 0%,#764ba2 100%); display:flex; align-items:center; justify-content:center; font-weight:700;">?</div>
+                            <div style="flex:1;">
+                                <div id="nextUpAuthor" style="font-weight:700;">—</div>
+                                <div id="nextUpContent" style="font-size:12px; color:#a8a8a8;">—</div>
+                            </div>
+                            <div id="nextUpCategory" style="background:#363636; padding:6px 10px; border-radius:16px; font-size:12px; color:#a8a8a8;">—</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="demo-controls">
+                <button class="btn" onclick="startDemo()">▶️ Start Demo</button>
+                <button class="btn btn-secondary" onclick="resetAlgorithm()">🔄 Reset</button>
+            </div>
+        </div>
+
+        <!-- RIGHT PANEL: ALGORITHM BRAIN -->
+        <div class="algorithm-panel">
+            <!-- INTEREST SCORES -->
+            <div class="section">
+                <div class="section-title">📊 Your Interest Profile</div>
+                <div id="interestScores"></div>
+                <div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid #363636; font-size: 11px; color: #a8a8a8;">
+                    Higher scores = More posts in that category
+                </div>
+            </div>
+
+            <!-- ALGORITHM TRIGGER -->
+            <div class="section">
+                <div class="section-title">⚡ Algorithm Decision</div>
+                <div id="algorithmTrigger" style="font-size: 12px; color: #a8a8a8; line-height: 1.6;">
+                    <p>Click Like, Comment, or Share to see how the algorithm reacts!</p>
+                </div>
+            </div>
+
+            <!-- FRIENDS ACTIVITY -->
+            <div class="section">
+                <div class="section-title">👥 Friends Activity</div>
+                <div id="friendsActivity" style="font-size: 12px;">
+                    <p style="color: #a8a8a8;">Your friends are interacting with posts...</p>
+                </div>
+            </div>
+
+            <!-- LOGIC LOG -->
+            <div class="section">
+                <div class="section-title">📝 Live Action Log</div>
+                <div class="logic-log" id="logicLog">
+                    <div class="logic-entry like">
+                        <strong>🎬 Demo Started</strong><br>
+                        <span class="logic-time">Ready to show algorithm behavior</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CANDIDATE QUEUE -->
+            <div class="section">
+                <div class="section-title">📋 Next Posts (Queue)</div>
+                <div id="candidateQueue" style="font-size: 11px;">
+                    <p style="color: #a8a8a8;">Queue will appear after first interaction</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- INFO BOX -->
+    <div style="padding: 0 40px;">
+        <div class="info-box">
+            <strong>🎓 How This Algorithm Works:</strong>
+            <ul>
+                <li>• <strong>Content-Based Filtering:</strong> Every Like adds 1pt, Comment adds 3pts, Share adds 5pts to that category's score</li>
+                <li>• <strong>Collaborative Filtering:</strong> When friends interact with posts, similar posts appear in your feed</li>
+                <li>• <strong>Weighting System:</strong> Higher scoring categories get shown more often</li>
+                <li>• <strong>Filter Bubbles:</strong> If you only engage with one category, you'll eventually see ONLY that category (Echo Chamber)</li>
+                <li>• <strong>Engagement Maximization:</strong> The algorithm prioritizes keeping you scrolling, not showing you diverse content</li>
+            </ul>
+        </div>
+
+        <div class="info-box" style="border-left-color: #fbbf24; margin-bottom: 40px;">
+            <strong style="color: #fbbf24;">⚠️ Try This Experiment:</strong>
+            <ul>
+                <li>• Only like "Sports" posts for 5+ interactions</li>
+                <li>• Watch your Interest Profile become 100% Sports</li>
+                <li>• Notice how you'll eventually see NOTHING but Sports (Filter Bubble)</li>
+                <li>• This is why social media creates echo chambers!</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        // ============= DATA =============
+        const mockPosts = [
+            { id: 1, author: 'Tech Daily', category: 'Tech', content: '🚀 New AI Breakthrough Announced!', avatar: 'T' },
+            { id: 2, author: 'Sports Hub', category: 'Sports', content: '⚽ Epic Goal Scored!', avatar: 'S' },
+            { id: 3, author: 'Nature Photos', category: 'Nature', content: '🌲 Beautiful Mountain Sunrise', avatar: 'N' },
+            { id: 4, author: 'Food Lover', category: 'Food', content: '🍕 Recipe: Perfect Pizza Dough', avatar: 'F' },
+            { id: 5, author: 'Gaming Zone', category: 'Gaming', content: '🎮 New Game Release Trailer', avatar: 'G' },
+            { id: 6, author: 'Tech Weekly', category: 'Tech', content: '💻 Best Laptops 2025', avatar: 'T' },
+            { id: 7, author: 'Cooking Expert', category: 'Food', content: '🍜 Ramen Master Class', avatar: 'C' },
+            { id: 8, author: 'Gaming Pro', category: 'Gaming', content: '🏆 Esports Championship Highlights', avatar: 'G' },
+            { id: 9, author: 'Nature Explorer', category: 'Nature', content: '🦁 Wildlife Documentary Scene', avatar: 'N' },
+            { id: 10, author: 'Sports Legend', category: 'Sports', content: '🏀 Championship Game Recap', avatar: 'S' },
+        ];
+
+        const categories = ['Tech', 'Sports', 'Nature', 'Food', 'Gaming'];
+        const mockFriends = ['Alex', 'Jordan', 'Casey', 'Taylor', 'Morgan'];
+
+        // ============= STATE =============
+        let userProfile = {
+            Tech: 20,
+            Sports: 20,
+            Nature: 20,
+            Food: 20,
+            Gaming: 20
+        };
+
+        let postHistory = [];
+        let currentPostIndex = 0;
+        let logHistory = [];
+        let allPosts = [...mockPosts];
+
+        // ============= INITIALIZATION =============
+        function initializeAlgorithm() {
+            currentPostIndex = 0;
+            postHistory = [];
+            logHistory = [];
+            allPosts = [...mockPosts];
+            showCurrentPost();
+            updateInterestScores();
+            addLog('🎬 Algorithm Demo Initialized!', 'like');
+        }
+
+        // ============= DISPLAY FUNCTIONS =============
+        let currentDisplayedPost = null;
+
+        function showCurrentPost() {
+            const post = getNextPost();
+            if (!post) return;
+
+            currentDisplayedPost = post;
+
+            document.getElementById('currentAvatar').textContent = post.avatar;
+            document.getElementById('currentAuthor').textContent = post.author;
+            document.getElementById('currentContent').textContent = post.content;
+            document.getElementById('currentCategory').textContent = post.category;
+            document.getElementById('currentTime').textContent = 'just now';
+
+            // Reset button states
+            document.querySelectorAll('.action-btn').forEach(btn => btn.classList.remove('active'));
+
+            // Update prediction and candidate queue
+            updateCandidateQueue();
+            updateNextUp(post);
+        }
+
+        // Predict the next post (the one algorithm is most likely to show next)
+        function predictNextPost(current) {
+            // Determine top candidates sorted by user's category score
+            const sortedPosts = allPosts.slice().sort((a, b) => userProfile[b.category] - userProfile[a.category]);
+
+            // Prefer a post not equal to current; try to pick highest scoring different post
+            for (let p of sortedPosts) {
+                if (!current || p.id !== current.id) return p;
+            }
+            // fallback
+            return sortedPosts[0] || null;
+        }
+
+        function updateNextUp(current) {
+            const next = predictNextPost(current);
+            const container = document.getElementById('nextUp');
+            if (!next) {
+                document.getElementById('nextUpAuthor').textContent = '—';
+                document.getElementById('nextUpContent').textContent = '—';
+                document.getElementById('nextUpCategory').textContent = '—';
+                container.querySelector('div').textContent = '?';
+                return;
+            }
+
+            document.getElementById('nextUpAuthor').textContent = next.author;
+            document.getElementById('nextUpContent').textContent = next.content;
+            document.getElementById('nextUpCategory').textContent = next.category;
+            // avatar circle
+            container.querySelector('div').textContent = next.avatar;
+        }
+
+        function getNextPost() {
+            // Sort by user interest scores
+            const sortedPosts = allPosts.sort((a, b) => {
+                return userProfile[b.category] - userProfile[a.category];
+            });
+
+            if (sortedPosts.length === 0) return null;
+
+            // With 70% chance show top category, 30% show discovery
+            const useTopCategory = Math.random() < 0.7;
+            if (useTopCategory) {
+                return sortedPosts[0];
+            } else {
+                return sortedPosts[Math.floor(Math.random() * sortedPosts.length)];
+            }
+        }
+
+        function updateInterestScores() {
+            let html = '';
+            let total = Object.values(userProfile).reduce((a, b) => a + b, 0);
+
+            categories.forEach(cat => {
+                const score = userProfile[cat];
+                const percentage = Math.round((score / total) * 100);
+                html += `
+                    <div class="interest-item">
+                        <div class="interest-label">
+                            <span class="interest-label-name">${cat}</span>
+                            <span class="interest-label-score">${percentage}%</span>
+                        </div>
+                        <div class="interest-bar">
+                            <div class="interest-bar-fill" style="width: ${percentage}%"></div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            document.getElementById('interestScores').innerHTML = html;
+        }
+
+        function addLog(message, type = 'like') {
+            const now = new Date().toLocaleTimeString();
+            const entry = document.createElement('div');
+            entry.className = `logic-entry ${type}`;
+            entry.innerHTML = `${message}<br><span class="logic-time">${now}</span>`;
+            document.getElementById('logicLog').appendChild(entry);
+
+            // Keep log to 10 entries
+            const logs = document.getElementById('logicLog').querySelectorAll('.logic-entry');
+            if (logs.length > 10) {
+                logs[0].remove();
+            }
+        }
+
+        function updateAlgorithmTrigger(message) {
+            document.getElementById('algorithmTrigger').innerHTML = `<p style="font-size: 12px; color: #a8a8a8; line-height: 1.6;">${message}</p>`;
+        }
+
+        function showFriendsActivity() {
+            const randomFriend = mockFriends[Math.floor(Math.random() * mockFriends.length)];
+            const randomCategory = categories[Math.floor(Math.random() * categories.length)];
+            const actions = ['liked', 'shared', 'commented on'];
+            const action = actions[Math.floor(Math.random() * actions.length)];
+
+            const activity = `<div class="friend-activity">
+                <span class="friend-name">${randomFriend}</span> 
+                <span class="friend-action">${action} a ${randomCategory} post</span>
+            </div>`;
+
+            document.getElementById('friendsActivity').innerHTML = activity;
+
+            // Inject a post from this category with 40% chance
+            if (Math.random() < 0.4) {
+                const categoryPosts = allPosts.filter(p => p.category === randomCategory);
+                if (categoryPosts.length > 0) {
+                    addLog(`📌 Showing ${randomCategory} post because <strong>${randomFriend}</strong> interacted with similar content`, 'friend');
+                }
+            }
+        }
+
+        function updateCandidateQueue() {
+            const sorted = allPosts.sort((a, b) => {
+                return userProfile[b.category] - userProfile[a.category];
+            });
+
+            let html = '';
+            for (let i = 0; i < 3 && i < sorted.length; i++) {
+                const post = sorted[i];
+                const score = userProfile[post.category];
+                html += `
+                    <div class="queue-post">
+                        <span class="queue-post-category">${post.category}</span>
+                        <span class="queue-post-score">${score} pts</span>
+                        <div style="clear: both; margin-top: 8px;">${post.content}</div>
+                    </div>
+                `;
+            }
+            document.getElementById('candidateQueue').innerHTML = html;
+        }
+
+        // ============= INTERACTION LOGIC =============
+        function interactWithPost(action) {
+            const post = allPosts.sort((a, b) => {
+                return userProfile[b.category] - userProfile[a.category];
+            })[0];
+
+            let points = 0;
+            let emoji = '';
+            let actionName = '';
+
+            if (action === 'like') {
+                points = 1;
+                emoji = '👍';
+                actionName = 'Liked';
+            } else if (action === 'comment') {
+                points = 3;
+                emoji = '💬';
+                actionName = 'Commented on';
+            } else if (action === 'share') {
+                points = 5;
+                emoji = '↗️';
+                actionName = 'Shared';
+            }
+
+            // Update interest profile
+            userProfile[post.category] += points;
+
+            // Update UI
+            updateInterestScores();
+            updateCandidateQueue();
+            showFriendsActivity();
+
+            // Log the action
+            const logMsg = `${emoji} <strong>${actionName}</strong> <strong>${post.category}</strong> post<br>→ +${points}pt to ${post.category} (Total: ${userProfile[post.category]})`;
+            addLog(logMsg, action);
+
+            // Update trigger message
+            const reason = action === 'like' ? 'You showed interest in this content' :
+                           action === 'comment' ? 'Deep engagement detected - similar posts boosted' :
+                           'High intent signal - this category gets priority';
+            updateAlgorithmTrigger(`✅ ${actionName} recorded! ${reason}`);
+
+            // Move to next post (with short delay)
+            setTimeout(() => {
+                showCurrentPost();
+            }, 500);
+
+            // Mark button as active
+            event.target.closest('.action-btn').classList.add('active');
+        }
+
+        function resetAlgorithm() {
+            userProfile = {
+                Tech: 20,
+                Sports: 20,
+                Nature: 20,
+                Food: 20,
+                Gaming: 20
+            };
+            postHistory = [];
+            logHistory = [];
+            currentPostIndex = 0;
+            
+            document.getElementById('logicLog').innerHTML = `
+                <div class="logic-entry like">
+                    <strong>🔄 Algorithm Reset</strong><br>
+                    <span class="logic-time">All scores returned to 20%</span>
+                </div>
+            `;
+            
+            initializeAlgorithm();
+        }
+
+        function startDemo() {
+            initializeAlgorithm();
+        }
+
+        // ============= INITIALIZE ON LOAD =============
+        window.addEventListener('DOMContentLoaded', () => {
+            initializeAlgorithm();
+        });
+    </script>
+</body>
+</html>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>📊 Social Network Graph Visualization - Educational Tool</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            min-height: 100vh;
+            color: #fff;
+        }
+
+        .container {
+            display: flex;
+            height: 100vh;
+        }
+
+        /* Left Panel - Controls */
+        .control-panel {
+            width: 350px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 20px;
+            overflow-y: auto;
+            border-right: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .panel-title {
+            font-size: 24px;
+            margin-bottom: 20px;
+            text-align: center;
+            color: #00d9ff;
+            text-shadow: 0 0 10px rgba(0, 217, 255, 0.5);
+        }
+
+        .section {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+
+        .section-title {
+            font-size: 16px;
+            color: #ff6b6b;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .input-group {
+            margin-bottom: 10px;
+        }
+
+        .input-group label {
+            display: block;
+            font-size: 12px;
+            color: #ccc;
+            margin-bottom: 5px;
+        }
+
+        .input-group input, .input-group select {
+            width: 100%;
+            padding: 8px;
+            border: none;
+            border-radius: 5px;
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            font-size: 14px;
+        }
+
+        .input-group input::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, #00d9ff, #0099cc);
+            color: #000;
+        }
+
+        .btn-secondary {
+            background: linear-gradient(45deg, #ff6b6b, #cc5555);
+            color: #fff;
+        }
+
+        .btn-success {
+            background: linear-gradient(45deg, #4ecdc4, #2ea69a);
+            color: #000;
+        }
+
+        .btn-warning {
+            background: linear-gradient(45deg, #ffd93d, #ccad30);
+            color: #000;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Main Canvas Area */
+        .canvas-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 15px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .header h1 {
+            font-size: 28px;
+            color: #00d9ff;
+            margin-bottom: 5px;
+        }
+
+        .header p {
+            color: #aaa;
+            font-size: 14px;
+        }
+
+        #graph-canvas {
+            flex: 1;
+            background: radial-gradient(circle at center, #1a1a2e 0%, #0d0d1a 100%);
+        }
+
+        /* Right Panel - Info */
+        .info-panel {
+            width: 350px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 20px;
+            overflow-y: auto;
+            border-left: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        /* Log/Output Area */
+        .log-area {
+            background: #000;
+            border-radius: 10px;
+            padding: 15px;
+            height: 200px;
+            overflow-y: auto;
+            font-family: 'Consolas', monospace;
+            font-size: 12px;
+            margin-bottom: 15px;
+        }
+
+        .log-entry {
+            margin-bottom: 5px;
+            padding: 3px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .log-entry.info { color: #00d9ff; }
+        .log-entry.success { color: #4ecdc4; }
+        .log-entry.warning { color: #ffd93d; }
+        .log-entry.error { color: #ff6b6b; }
+
+        /* Stats */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .stat-card {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #00d9ff;
+        }
+
+        .stat-label {
+            font-size: 11px;
+            color: #888;
+            text-transform: uppercase;
+        }
+
+        /* Algorithm Explanation */
+        .explanation {
+            background: rgba(0, 217, 255, 0.1);
+            border-left: 3px solid #00d9ff;
+            padding: 10px;
+            margin-bottom: 15px;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
+        /* Traversal Path Display */
+        .path-display {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+
+        .path-nodes {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin-top: 10px;
+        }
+
+        .path-node {
+            background: #00d9ff;
+            color: #000;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: bold;
+            animation: nodeAppear 0.5s ease;
+        }
+
+        .path-node.current {
+            background: #ff6b6b;
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes nodeAppear {
+            from { transform: scale(0); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        /* User List */
+        .user-list {
+            max-height: 150px;
+            overflow-y: auto;
+        }
+
+        .user-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 5px;
+            margin-bottom: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .user-item:hover {
+            background: rgba(0, 217, 255, 0.2);
+        }
+
+        .user-item.selected {
+            background: rgba(0, 217, 255, 0.3);
+            border: 1px solid #00d9ff;
+        }
+
+        /* Speed Control */
+        .speed-control {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .speed-control input[type="range"] {
+            flex: 1;
+        }
+
+        /* Legend */
+        .legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 12px;
+        }
+
+        .legend-color {
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+        }
+
+        /* Tooltip */
+        .tooltip {
+            position: absolute;
+            background: rgba(0, 0, 0, 0.9);
+            color: #fff;
+            padding: 10px;
+            border-radius: 5px;
+            font-size: 12px;
+            pointer-events: none;
+            z-index: 1000;
+            display: none;
+        }
+
+        /* Code Display */
+        .code-display {
+            background: #1e1e1e;
+            border-radius: 10px;
+            padding: 15px;
+            font-family: 'Consolas', monospace;
+            font-size: 11px;
+            max-height: 200px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            color: #d4d4d4;
+        }
+
+        .code-keyword { color: #569cd6; }
+        .code-string { color: #ce9178; }
+        .code-comment { color: #6a9955; }
+        .code-function { color: #dcdcaa; }
+
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .container {
+                flex-direction: column;
+            }
+            .control-panel, .info-panel {
+                width: 100%;
+                height: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Left Control Panel -->
+        <div class="control-panel">
+            <h2 class="panel-title">🎮 Graph Controls</h2>
+
+            <!-- Add User Section -->
+            <div class="section">
+                <h3 class="section-title">👤 Add User (Node)</h3>
+                <div class="input-group">
+                    <label>Username</label>
+                    <input type="text" id="new-user" placeholder="Enter username">
+                </div>
+                <button class="btn btn-primary" onclick="addUser()">Add User</button>
+            </div>
+
+            <!-- Add Friendship Section -->
+            <div class="section">
+                <h3 class="section-title">🤝 Add Friendship (Edge)</h3>
+                <div class="input-group">
+                    <label>First User</label>
+                    <select id="friend1"></select>
+                </div>
+                <div class="input-group">
+                    <label>Second User</label>
+                    <select id="friend2"></select>
+                </div>
+                <button class="btn btn-success" onclick="addFriendship()">Connect Users</button>
+            </div>
+
+            <!-- Algorithm Section -->
+            <div class="section">
+                <h3 class="section-title">🔍 Graph Algorithms</h3>
+                <div class="input-group">
+                    <label>Start Node</label>
+                    <select id="start-node"></select>
+                </div>
+                <div class="input-group">
+                    <label>End Node (for shortest path)</label>
+                    <select id="end-node"></select>
+                </div>
+                <button class="btn btn-primary" onclick="runBFS()">▶️ Run BFS</button>
+                <button class="btn btn-secondary" onclick="runDFS()">▶️ Run DFS</button>
+                <button class="btn btn-success" onclick="findShortestPath()">🛤️ Shortest Path</button>
+                <button class="btn btn-warning" onclick="suggestFriends()">💡 Friend Suggestions</button>
+            </div>
+
+            <!-- Animation Speed -->
+            <div class="section">
+                <h3 class="section-title">⚡ Animation Speed</h3>
+                <div class="speed-control">
+                    <span>Slow</span>
+                    <input type="range" id="speed" min="100" max="2000" value="800">
+                    <span>Fast</span>
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="section">
+                <h3 class="section-title">🔧 Actions</h3>
+                <button class="btn btn-primary" onclick="resetVisualization()">🔄 Reset View</button>
+                <button class="btn btn-secondary" onclick="clearGraph()">🗑️ Clear Graph</button>
+                <button class="btn btn-success" onclick="loadSampleData()">📥 Load Sample Data</button>
+            </div>
+        </div>
+
+        <!-- Main Canvas -->
+        <div class="canvas-area">
+            <div class="header">
+                <h1>📱 Social Network Graph Visualization</h1>
+                <p>Interactive educational tool for understanding graphs in social media</p>
+            </div>
+            <svg id="graph-canvas"></svg>
+        </div>
+
+        <!-- Right Info Panel -->
+        <div class="info-panel">
+            <h2 class="panel-title">📊 Information</h2>
+
+            <!-- Stats -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-value" id="node-count">0</div>
+                    <div class="stat-label">Users (Nodes)</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="edge-count">0</div>
+                    <div class="stat-label">Connections (Edges)</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="avg-connections">0</div>
+                    <div class="stat-label">Avg Connections</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="communities">1</div>
+                    <div class="stat-label">Communities</div>
+                </div>
+            </div>
+
+            <!-- Legend -->
+            <div class="section">
+                <h3 class="section-title">🎨 Legend</h3>
+                <div class="legend">
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #00d9ff;"></div>
+                        <span>Normal Node</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #ff6b6b;"></div>
+                        <span>Current Node</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #4ecdc4;"></div>
+                        <span>Visited Node</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #ffd93d;"></div>
+                        <span>Path Node</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Algorithm Explanation -->
+            <div class="section">
+                <h3 class="section-title">📖 Algorithm Explanation</h3>
+                <div class="explanation" id="algorithm-explanation">
+                    Select an algorithm to see how it works! Graphs are used in social media to store user connections efficiently.
+                </div>
+            </div>
+
+            <!-- Traversal Path -->
+            <div class="path-display">
+                <h3 class="section-title">🛤️ Traversal Path</h3>
+                <div class="path-nodes" id="path-nodes">
+                    <span style="color: #888;">Run an algorithm to see the path</span>
+                </div>
+            </div>
+
+            <!-- Log -->
+            <div class="section">
+                <h3 class="section-title">📋 Activity Log</h3>
+                <div class="log-area" id="log"></div>
+            </div>
+
+            <!-- Java Code Display -->
+            <div class="section">
+                <h3 class="section-title">☕ Java Code</h3>
+                <div class="code-display" id="code-display">
+<span class="code-comment">// Select an operation to see the Java code</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="tooltip" id="tooltip"></div>
+
+    <script>
+        // Graph Data Structure
+        let nodes = [];
+        let edges = [];
+        let simulation = null;
+        let svg, width, height;
+        let nodeElements, edgeElements, labelElements;
+        let animationSpeed = 800;
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            initSVG();
+            loadSampleData();
+            
+            document.getElementById('speed').addEventListener('input', (e) => {
+                animationSpeed = 2100 - parseInt(e.target.value);
+            });
+        });
+
+        function initSVG() {
+            svg = document.getElementById('graph-canvas');
+            const rect = svg.getBoundingClientRect();
+            width = rect.width || 800;
+            height = rect.height || 600;
+        }
+
+        // Log function
+        function log(message, type = 'info') {
+            const logArea = document.getElementById('log');
+            const entry = document.createElement('div');
+            entry.className = `log-entry ${type}`;
+            entry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            logArea.insertBefore(entry, logArea.firstChild);
+        }
+
+        // Update statistics
+        function updateStats() {
+            document.getElementById('node-count').textContent = nodes.length;
+            document.getElementById('edge-count').textContent = edges.length;
+            const avgConn = nodes.length > 0 ? ((edges.length * 2) / nodes.length).toFixed(1) : 0;
+            document.getElementById('avg-connections').textContent = avgConn;
+            document.getElementById('communities').textContent = countCommunities();
+        }
+
+        // Count connected components
+        function countCommunities() {
+            if (nodes.length === 0) return 0;
+            
+            const visited = new Set();
+            let count = 0;
+            
+            for (const node of nodes) {
+                if (!visited.has(node.id)) {
+                    bfsCount(node.id, visited);
+                    count++;
+                }
+            }
+            return count;
+        }
+
+        function bfsCount(startId, visited) {
+            const queue = [startId];
+            visited.add(startId);
+            
+            while (queue.length > 0) {
+                const current = queue.shift();
+                const neighbors = getNeighbors(current);
+                
+                for (const neighbor of neighbors) {
+                    if (!visited.has(neighbor)) {
+                        visited.add(neighbor);
+                        queue.push(neighbor);
+                    }
+                }
+            }
+        }
+
+        // Get neighbors of a node
+        function getNeighbors(nodeId) {
+            const neighbors = [];
+            for (const edge of edges) {
+                if (edge.source.id === nodeId || edge.source === nodeId) {
+                    neighbors.push(typeof edge.target === 'object' ? edge.target.id : edge.target);
+                } else if (edge.target.id === nodeId || edge.target === nodeId) {
+                    neighbors.push(typeof edge.source === 'object' ? edge.source.id : edge.source);
+                }
+            }
+            return neighbors;
+        }
+
+        // Update dropdown menus
+        function updateDropdowns() {
+            const selects = ['friend1', 'friend2', 'start-node', 'end-node'];
+            selects.forEach(id => {
+                const select = document.getElementById(id);
+                const currentValue = select.value;
+                select.innerHTML = '';
+                nodes.forEach(node => {
+                    const option = document.createElement('option');
+                    option.value = node.id;
+                    option.textContent = node.id;
+                    select.appendChild(option);
+                });
+                if (nodes.find(n => n.id === currentValue)) {
+                    select.value = currentValue;
+                }
+            });
+        }
+
+        // Add user
+        function addUser() {
+            const input = document.getElementById('new-user');
+            const username = input.value.trim().toLowerCase();
+            
+            if (!username) {
+                log('Please enter a username', 'warning');
+                return;
+            }
+            
+            if (nodes.find(n => n.id === username)) {
+                log(`User "${username}" already exists!`, 'error');
+                return;
+            }
+            
+            nodes.push({ id: username, connections: 0 });
+            log(`Added user: ${username}`, 'success');
+            input.value = '';
+            
+            updateDropdowns();
+            updateStats();
+            renderGraph();
+            
+            showCode('addUser', username);
+        }
+
+        // Add friendship
+        function addFriendship() {
+            const user1 = document.getElementById('friend1').value;
+            const user2 = document.getElementById('friend2').value;
+            
+            if (!user1 || !user2) {
+                log('Please select both users', 'warning');
+                return;
+            }
+            
+            if (user1 === user2) {
+                log('Cannot be friends with yourself!', 'error');
+                return;
+            }
+            
+            // Check if friendship already exists
+            const exists = edges.find(e => 
+                (e.source.id === user1 && e.target.id === user2) ||
+                (e.source.id === user2 && e.target.id === user1) ||
+                (e.source === user1 && e.target === user2) ||
+                (e.source === user2 && e.target === user1)
+            );
+            
+            if (exists) {
+                log(`${user1} and ${user2} are already friends!`, 'warning');
+                return;
+            }
+            
+            edges.push({ source: user1, target: user2 });
+            
+            // Update connection counts
+            const node1 = nodes.find(n => n.id === user1);
+            const node2 = nodes.find(n => n.id === user2);
+            if (node1) node1.connections++;
+            if (node2) node2.connections++;
+            
+            log(`${user1} and ${user2} are now friends!`, 'success');
+            updateStats();
+            renderGraph();
+            
+            showCode('addFriendship', user1, user2);
+        }
+
+        // Render graph using D3-like force simulation
+        function renderGraph() {
+            svg.innerHTML = '';
+            
+            if (nodes.length === 0) return;
+            
+            const rect = svg.getBoundingClientRect();
+            width = rect.width || 800;
+            height = rect.height || 600;
+            
+            // Create defs for arrow markers and gradients
+            const defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
+            
+            // Glow filter
+            const filter = document.createElementNS('http://www.w3.org/2000/svg', 'filter');
+            filter.setAttribute('id', 'glow');
+            filter.innerHTML = `
+                <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+                <feMerge>
+                    <feMergeNode in="coloredBlur"/>
+                    <feMergeNode in="SourceGraphic"/>
+                </feMerge>
+            `;
+            defs.appendChild(filter);
+            svg.appendChild(defs);
+            
+            // Simple force-directed layout
+            initializePositions();
+            
+            // Create edge group
+            const edgeGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+            edgeGroup.setAttribute('id', 'edges');
+            svg.appendChild(edgeGroup);
+            
+            // Create node group
+            const nodeGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+            nodeGroup.setAttribute('id', 'nodes');
+            svg.appendChild(nodeGroup);
+            
+            // Draw edges
+            edges.forEach((edge, i) => {
+                const source = nodes.find(n => n.id === (typeof edge.source === 'object' ? edge.source.id : edge.source));
+                const target = nodes.find(n => n.id === (typeof edge.target === 'object' ? edge.target.id : edge.target));
+                
+                if (source && target) {
+                    const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                    line.setAttribute('x1', source.x);
+                    line.setAttribute('y1', source.y);
+                    line.setAttribute('x2', target.x);
+                    line.setAttribute('y2', target.y);
+                    line.setAttribute('stroke', 'rgba(0, 217, 255, 0.3)');
+                    line.setAttribute('stroke-width', '2');
+                    line.setAttribute('data-source', source.id);
+                    line.setAttribute('data-target', target.id);
+                    line.setAttribute('id', `edge-${source.id}-${target.id}`);
+                    edgeGroup.appendChild(line);
+                }
+            });
+            
+            // Draw nodes
+            nodes.forEach(node => {
+                const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+                g.setAttribute('class', 'node');
+                g.setAttribute('data-id', node.id);
+                g.setAttribute('transform', `translate(${node.x}, ${node.y})`);
+                
+                // Node circle
+                const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                const radius = 20 + (node.connections * 2);
+                circle.setAttribute('r', radius);
+                circle.setAttribute('fill', '#00d9ff');
+                circle.setAttribute('stroke', '#fff');
+                circle.setAttribute('stroke-width', '2');
+                circle.setAttribute('filter', 'url(#glow)');
+                circle.setAttribute('id', `node-${node.id}`);
+                
+                // Node label
+                const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                text.setAttribute('text-anchor', 'middle');
+                text.setAttribute('dy', '5');
+                text.setAttribute('fill', '#000');
+                text.setAttribute('font-size', '12');
+                text.setAttribute('font-weight', 'bold');
+                text.textContent = node.id;
+                
+                g.appendChild(circle);
+                g.appendChild(text);
+                
+                // Make draggable
+                makeDraggable(g, node);
+                
+                // Hover effects
+                g.addEventListener('mouseenter', (e) => showTooltip(e, node));
+                g.addEventListener('mouseleave', hideTooltip);
+                
+                nodeGroup.appendChild(g);
+            });
+            
+            // Run simple force simulation
+            runForceSimulation();
+        }
+
+        function initializePositions() {
+            const centerX = width / 2;
+            const centerY = height / 2;
+            const radius = Math.min(width, height) / 3;
+            
+            nodes.forEach((node, i) => {
+                if (node.x === undefined) {
+                    const angle = (2 * Math.PI * i) / nodes.length;
+                    node.x = centerX + radius * Math.cos(angle);
+                    node.y = centerY + radius * Math.sin(angle);
+                }
+            });
+        }
+
+        function runForceSimulation() {
+            const iterations = 50;
+            const k = Math.sqrt((width * height) / nodes.length);
+            
+            for (let iter = 0; iter < iterations; iter++) {
+                // Repulsion between nodes
+                for (let i = 0; i < nodes.length; i++) {
+                    for (let j = i + 1; j < nodes.length; j++) {
+                        const dx = nodes[j].x - nodes[i].x;
+                        const dy = nodes[j].y - nodes[i].y;
+                        const dist = Math.sqrt(dx * dx + dy * dy) || 1;
+                        const force = (k * k) / dist * 0.1;
+                        
+                        const fx = (dx / dist) * force;
+                        const fy = (dy / dist) * force;
+                        
+                        nodes[i].x -= fx;
+                        nodes[i].y -= fy;
+                        nodes[j].x += fx;
+                        nodes[j].y += fy;
+                    }
+                }
+                
+                // Attraction along edges
+                edges.forEach(edge => {
+                    const source = nodes.find(n => n.id === (typeof edge.source === 'object' ? edge.source.id : edge.source));
+                    const target = nodes.find(n => n.id === (typeof edge.target === 'object' ? edge.target.id : edge.target));
+                    
+                    if (source && target) {
+                        const dx = target.x - source.x;
+                        const dy = target.y - source.y;
+                        const dist = Math.sqrt(dx * dx + dy * dy) || 1;
+                        const force = dist / k * 0.5;
+                        
+                        const fx = (dx / dist) * force;
+                        const fy = (dy / dist) * force;
+                        
+                        source.x += fx;
+                        source.y += fy;
+                        target.x -= fx;
+                        target.y -= fy;
+                    }
+                });
+                
+                // Keep nodes within bounds
+                nodes.forEach(node => {
+                    node.x = Math.max(50, Math.min(width - 50, node.x));
+                    node.y = Math.max(50, Math.min(height - 50, node.y));
+                });
+            }
+            
+            // Update positions in SVG
+            updatePositions();
+        }
+
+        function updatePositions() {
+            nodes.forEach(node => {
+                const g = document.querySelector(`.node[data-id="${node.id}"]`);
+                if (g) {
+                    g.setAttribute('transform', `translate(${node.x}, ${node.y})`);
+                }
+            });
+            
+            edges.forEach(edge => {
+                const source = nodes.find(n => n.id === (typeof edge.source === 'object' ? edge.source.id : edge.source));
+                const target = nodes.find(n => n.id === (typeof edge.target === 'object' ? edge.target.id : edge.target));
+                
+                if (source && target) {
+                    const line = document.getElementById(`edge-${source.id}-${target.id}`) || 
+                                document.getElementById(`edge-${target.id}-${source.id}`);
+                    if (line) {
+                        line.setAttribute('x1', source.x);
+                        line.setAttribute('y1', source.y);
+                        line.setAttribute('x2', target.x);
+                        line.setAttribute('y2', target.y);
+                    }
+                }
+            });
+        }
+
+        function makeDraggable(element, node) {
+            let isDragging = false;
+            let startX, startY;
+            
+            element.addEventListener('mousedown', (e) => {
+                isDragging = true;
+                startX = e.clientX - node.x;
+                startY = e.clientY - node.y;
+                element.style.cursor = 'grabbing';
+            });
+            
+            document.addEventListener('mousemove', (e) => {
+                if (!isDragging) return;
+                node.x = e.clientX - startX;
+                node.y = e.clientY - startY;
+                updatePositions();
+            });
+            
+            document.addEventListener('mouseup', () => {
+                isDragging = false;
+                element.style.cursor = 'grab';
+            });
+        }
+
+        function showTooltip(event, node) {
+            const tooltip = document.getElementById('tooltip');
+            const neighbors = getNeighbors(node.id);
+            tooltip.innerHTML = `
+                <strong>${node.id}</strong><br>
+                Connections: ${node.connections}<br>
+                Friends: ${neighbors.join(', ') || 'None'}
+            `;
+            tooltip.style.left = (event.pageX + 10) + 'px';
+            tooltip.style.top = (event.pageY + 10) + 'px';
+            tooltip.style.display = 'block';
+        }
+
+        function hideTooltip() {
+            document.getElementById('tooltip').style.display = 'none';
+        }
+
+        // BFS Algorithm
+        async function runBFS() {
+            const startNode = document.getElementById('start-node').value;
+            if (!startNode) {
+                log('Please select a start node', 'warning');
+                return;
+            }
+            
+            resetNodeColors();
+            log(`Starting BFS from ${startNode}`, 'info');
+            
+            document.getElementById('algorithm-explanation').innerHTML = `
+                <strong>BFS (Breadth-First Search)</strong><br><br>
+                BFS explores the graph <strong>level by level</strong>, like ripples in water.<br><br>
+                <strong>How it works:</strong><br>
+                1. Start at the source node<br>
+                2. Visit all direct neighbors (Level 1)<br>
+                3. Then visit neighbors of neighbors (Level 2)<br>
+                4. Continue until all reachable nodes are visited<br><br>
+                <strong>Uses in Social Media:</strong><br>
+                • Finding shortest path between users<br>
+                • "People You May Know" suggestions<br>
+                • Calculating degrees of separation
+            `;
+            
+            showCode('bfs', startNode);
+            
+            const visited = new Set();
+            const queue = [startNode];
+            visited.add(startNode);
+            const order = [];
+            
+            const pathContainer = document.getElementById('path-nodes');
+            pathContainer.innerHTML = '';
+            
+            while (queue.length > 0) {
+                const current = queue.shift();
+                order.push(current);
+                
+                // Highlight current node
+                await highlightNode(current, '#ff6b6b', true);
+                
+                // Add to path display
+                const pathNode = document.createElement('span');
+                pathNode.className = 'path-node';
+                pathNode.textContent = current;
+                pathContainer.appendChild(pathNode);
+                
+                await sleep(animationSpeed);
+                
+                // Mark as visited
+                await highlightNode(current, '#4ecdc4', false);
+                
+                // Process neighbors
+                const neighbors = getNeighbors(current);
+                for (const neighbor of neighbors) {
+                    if (!visited.has(neighbor)) {
+                        visited.add(neighbor);
+                        queue.push(neighbor);
+                        highlightEdge(current, neighbor, '#4ecdc4');
+                    }
+                }
+            }
+            
+            log(`BFS complete. Visited: ${order.join(' → ')}`, 'success');
+        }
+
+        // DFS Algorithm
+        async function runDFS() {
+            const startNode = document.getElementById('start-node').value;
+            if (!startNode) {
+                log('Please select a start node', 'warning');
+                return;
+            }
+            
+            resetNodeColors();
+            log(`Starting DFS from ${startNode}`, 'info');
+            
+            document.getElementById('algorithm-explanation').innerHTML = `
+                <strong>DFS (Depth-First Search)</strong><br><br>
+                DFS explores as <strong>deep as possible</strong> before backtracking.<br><br>
+                <strong>How it works:</strong><br>
+                1. Start at the source node<br>
+                2. Go to an unvisited neighbor<br>
+                3. Keep going deeper until stuck<br>
+                4. Backtrack and try other paths<br><br>
+                <strong>Uses in Social Media:</strong><br>
+                • Finding connected components<br>
+                • Detecting communities<br>
+                • Checking if network is connected
+            `;
+            
+            showCode('dfs', startNode);
+            
+            const visited = new Set();
+            const order = [];
+            const pathContainer = document.getElementById('path-nodes');
+            pathContainer.innerHTML = '';
+            
+            await dfsHelper(startNode, visited, order, pathContainer);
+            
+            log(`DFS complete. Visited: ${order.join(' → ')}`, 'success');
+        }
+
+        async function dfsHelper(node, visited, order, pathContainer) {
+            visited.add(node);
+            order.push(node);
+            
+            // Highlight current node
+            await highlightNode(node, '#ff6b6b', true);
+            
+            // Add to path display
+            const pathNode = document.createElement('span');
+            pathNode.className = 'path-node';
+            pathNode.textContent = node;
+            pathContainer.appendChild(pathNode);
+            
+            await sleep(animationSpeed);
+            
+            const neighbors = getNeighbors(node);
+            for (const neighbor of neighbors) {
+                if (!visited.has(neighbor)) {
+                    highlightEdge(node, neighbor, '#ff6b6b');
+                    await dfsHelper(neighbor, visited, order, pathContainer);
+                }
+            }
+            
+            // Mark as fully visited
+            await highlightNode(node, '#4ecdc4', false);
+        }
+
+        // Shortest Path (BFS-based)
+        async function findShortestPath() {
+            const startNode = document.getElementById('start-node').value;
+            const endNode = document.getElementById('end-node').value;
+            
+            if (!startNode || !endNode) {
+                log('Please select both start and end nodes', 'warning');
+                return;
+            }
+            
+            if (startNode === endNode) {
+                log('Start and end nodes are the same!', 'warning');
+                return;
+            }
+            
+            resetNodeColors();
+            log(`Finding shortest path from ${startNode} to ${endNode}`, 'info');
+            
+            document.getElementById('algorithm-explanation').innerHTML = `
+                <strong>Shortest Path (BFS)</strong><br><br>
+                Finding the <strong>minimum number of hops</strong> between two users.<br><br>
+                <strong>How it works:</strong><br>
+                1. Use BFS from start node<br>
+                2. Track parent of each visited node<br>
+                3. Stop when end node is found<br>
+                4. Reconstruct path by following parents<br><br>
+                <strong>Uses in Social Media:</strong><br>
+                • "6 Degrees of Separation"<br>
+                • Connection distance<br>
+                • Relationship strength analysis
+            `;
+            
+            showCode('shortestPath', startNode, endNode);
+            
+            const visited = new Set();
+            const parent = new Map();
+            const queue = [startNode];
+            visited.add(startNode);
+            parent.set(startNode, null);
+            
+            let found = false;
+            
+            while (queue.length > 0 && !found) {
+                const current = queue.shift();
+                await highlightNode(current, '#ff6b6b', true);
+                await sleep(animationSpeed / 2);
+                
+                if (current === endNode) {
+                    found = true;
+                    break;
+                }
+                
+                await highlightNode(current, '#4ecdc4', false);
+                
+                const neighbors = getNeighbors(current);
+                for (const neighbor of neighbors) {
+                    if (!visited.has(neighbor)) {
+                        visited.add(neighbor);
+                        parent.set(neighbor, current);
+                        queue.push(neighbor);
+                    }
+                }
+            }
+            
+            const pathContainer = document.getElementById('path-nodes');
+            pathContainer.innerHTML = '';
+            
+            if (found) {
+                // Reconstruct path
+                const path = [];
+                let current = endNode;
+                while (current !== null) {
+                    path.unshift(current);
+                    current = parent.get(current);
+                }
+                
+                // Highlight path
+                for (let i = 0; i < path.length; i++) {
+                    await highlightNode(path[i], '#ffd93d', false);
+                    
+                    const pathNode = document.createElement('span');
+                    pathNode.className = 'path-node';
+                    pathNode.style.background = '#ffd93d';
+                    pathNode.textContent = path[i];
+                    pathContainer.appendChild(pathNode);
+                    
+                    if (i > 0) {
+                        highlightEdge(path[i-1], path[i], '#ffd93d');
+                    }
+                    
+                    await sleep(animationSpeed);
+                }
+                
+                log(`Path found! ${path.join(' → ')} (${path.length - 1} degrees)`, 'success');
+            } else {
+                log(`No path exists between ${startNode} and ${endNode}`, 'error');
+                pathContainer.innerHTML = '<span style="color: #ff6b6b;">No path found!</span>';
+            }
+        }
+
+        // Friend Suggestions
+        async function suggestFriends() {
+            const username = document.getElementById('start-node').value;
+            if (!username) {
+                log('Please select a user', 'warning');
+                return;
+            }
+            
+            resetNodeColors();
+            log(`Finding friend suggestions for ${username}`, 'info');
+            
+            document.getElementById('algorithm-explanation').innerHTML = `
+                <strong>Friend Suggestions</strong><br><br>
+                The "People You May Know" algorithm.<br><br>
+                <strong>How it works:</strong><br>
+                1. Get all friends of the user<br>
+                2. For each friend, get their friends<br>
+                3. Count how many times each person appears<br>
+                4. Filter out existing friends<br>
+                5. Rank by mutual friend count<br><br>
+                <strong>Why it works:</strong><br>
+                People with more mutual friends are more likely to know each other!
+            `;
+            
+            showCode('suggestFriends', username);
+            
+            await highlightNode(username, '#ff6b6b', false);
+            
+            const currentFriends = new Set(getNeighbors(username));
+            const suggestionScore = new Map();
+            
+            // Highlight current friends
+            for (const friend of currentFriends) {
+                await highlightNode(friend, '#4ecdc4', false);
+                await sleep(animationSpeed / 2);
+                
+                // Look at friends of friends
+                const fof = getNeighbors(friend);
+                for (const potential of fof) {
+                    if (potential !== username && !currentFriends.has(potential)) {
+                        suggestionScore.set(potential, (suggestionScore.get(potential) || 0) + 1);
+                        await highlightNode(potential, '#ffd93d', false);
+                    }
+                }
+            }
+            
+            // Sort suggestions
+            const suggestions = [...suggestionScore.entries()]
+                .sort((a, b) => b[1] - a[1]);
+            
+            const pathContainer = document.getElementById('path-nodes');
+            pathContainer.innerHTML = '<strong>Suggestions:</strong><br>';
+            
+            for (const [user, score] of suggestions) {
+                const pathNode = document.createElement('span');
+                pathNode.className = 'path-node';
+                pathNode.style.background = '#ffd93d';
+                pathNode.textContent = `${user} (${score} mutual)`;
+                pathContainer.appendChild(pathNode);
+            }
+            
+            log(`Found ${suggestions.length} suggestions for ${username}`, 'success');
+        }
+
+        // Helper functions
+        async function highlightNode(nodeId, color, isCurrent) {
+            const circle = document.getElementById(`node-${nodeId}`);
+            if (circle) {
+                circle.setAttribute('fill', color);
+                if (isCurrent) {
+                    circle.setAttribute('r', parseFloat(circle.getAttribute('r')) + 5);
+                }
+            }
+        }
+
+        function highlightEdge(source, target, color) {
+            const edge = document.getElementById(`edge-${source}-${target}`) || 
+                        document.getElementById(`edge-${target}-${source}`);
+            if (edge) {
+                edge.setAttribute('stroke', color);
+                edge.setAttribute('stroke-width', '4');
+            }
+        }
+
+        function resetNodeColors() {
+            nodes.forEach(node => {
+                const circle = document.getElementById(`node-${node.id}`);
+                if (circle) {
+                    circle.setAttribute('fill', '#00d9ff');
+                    const baseRadius = 20 + (node.connections * 2);
+                    circle.setAttribute('r', baseRadius);
+                }
+            });
+            
+            edges.forEach(edge => {
+                const source = typeof edge.source === 'object' ? edge.source.id : edge.source;
+                const target = typeof edge.target === 'object' ? edge.target.id : edge.target;
+                const line = document.getElementById(`edge-${source}-${target}`) || 
+                            document.getElementById(`edge-${target}-${source}`);
+                if (line) {
+                    line.setAttribute('stroke', 'rgba(0, 217, 255, 0.3)');
+                    line.setAttribute('stroke-width', '2');
+                }
+            });
+        }
+
+        function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
+        function resetVisualization() {
+            resetNodeColors();
+            document.getElementById('path-nodes').innerHTML = '<span style="color: #888;">Run an algorithm to see the path</span>';
+            log('Visualization reset', 'info');
+        }
+
+        function clearGraph() {
+            nodes = [];
+            edges = [];
+            svg.innerHTML = '';
+            updateDropdowns();
+            updateStats();
+            log('Graph cleared', 'warning');
+        }
+
+        function loadSampleData() {
+            clearGraph();
+            
+            // Add sample users
+            const users = ['alice', 'bob', 'charlie', 'diana', 'eve', 'frank', 'grace', 'henry'];
+            users.forEach(user => {
+                nodes.push({ id: user, connections: 0 });
+            });
+            
+            // Add sample friendships
+            const friendships = [
+                ['alice', 'bob'], ['alice', 'charlie'], ['alice', 'diana'],
+                ['bob', 'charlie'], ['bob', 'eve'],
+                ['charlie', 'frank'],
+                ['diana', 'eve'], ['diana', 'grace'],
+                ['eve', 'frank'], ['eve', 'henry'],
+                ['frank', 'grace'],
+                ['grace', 'henry']
+            ];
+            
+            friendships.forEach(([u1, u2]) => {
+                edges.push({ source: u1, target: u2 });
+                const node1 = nodes.find(n => n.id === u1);
+                const node2 = nodes.find(n => n.id === u2);
+                if (node1) node1.connections++;
+                if (node2) node2.connections++;
+            });
+            
+            updateDropdowns();
+            updateStats();
+            renderGraph();
+            log('Sample data loaded', 'success');
+        }
+
+        // Show Java code for operations
+        function showCode(operation, ...args) {
+            const codeDisplay = document.getElementById('code-display');
+            
+            const codes = {
+                addUser: `<span class="code-comment">// Adding a new user (node) to the graph</span>
+<span class="code-keyword">public boolean</span> <span class="code-function">addUser</span>(String username) {
+    <span class="code-keyword">if</span> (adjacencyList.containsKey(username)) {
+        <span class="code-keyword">return false</span>; <span class="code-comment">// User exists</span>
+    }
+    
+    <span class="code-comment">// Add new node with empty connections</span>
+    adjacencyList.put(<span class="code-string">"${args[0]}"</span>, <span class="code-keyword">new</span> HashSet<>());
+    <span class="code-keyword">return true</span>;
+}`,
+
+                addFriendship: `<span class="code-comment">// Adding friendship (edge) - Undirected Graph</span>
+<span class="code-keyword">public boolean</span> <span class="code-function">addFriendship</span>(String u1, String u2) {
+    <span class="code-comment">// Add bidirectional edge</span>
+    adjacencyList.get(<span class="code-string">"${args[0]}"</span>).add(<span class="code-string">"${args[1]}"</span>);
+    adjacencyList.get(<span class="code-string">"${args[1]}"</span>).add(<span class="code-string">"${args[0]}"</span>);
+    
+    <span class="code-keyword">return true</span>;
+}`,
+
+                bfs: `<span class="code-comment">// BFS - Breadth First Search</span>
+<span class="code-keyword">public</span> List<String> <span class="code-function">bfs</span>(String start) {
+    List<String> visited = <span class="code-keyword">new</span> ArrayList<>();
+    Queue<String> queue = <span class="code-keyword">new</span> LinkedList<>();
+    Set<String> seen = <span class="code-keyword">new</span> HashSet<>();
+    
+    queue.offer(<span class="code-string">"${args[0]}"</span>);
+    seen.add(<span class="code-string">"${args[0]}"</span>);
+    
+    <span class="code-keyword">while</span> (!queue.isEmpty()) {
+        String current = queue.poll();
+        visited.add(current);
+        
+        <span class="code-keyword">for</span> (String neighbor : adjacencyList.get(current)) {
+            <span class="code-keyword">if</span> (!seen.contains(neighbor)) {
+                seen.add(neighbor);
+                queue.offer(neighbor);
+            }
+        }
+    }
+    <span class="code-keyword">return</span> visited;
+}`,
+
+                dfs: `<span class="code-comment">// DFS - Depth First Search</span>
+<span class="code-keyword">public void</span> <span class="code-function">dfs</span>(String node, Set<String> visited) {
+    visited.add(<span class="code-string">"${args[0]}"</span>);
+    System.out.println(<span class="code-string">"Visiting: "</span> + node);
+    
+    <span class="code-keyword">for</span> (String neighbor : adjacencyList.get(node)) {
+        <span class="code-keyword">if</span> (!visited.contains(neighbor)) {
+            <span class="code-function">dfs</span>(neighbor, visited); <span class="code-comment">// Recursive</span>
+        }
+    }
+}`,
+
+                shortestPath: `<span class="code-comment">// Shortest Path using BFS</span>
+<span class="code-keyword">public</span> List<String> <span class="code-function">shortestPath</span>(String start, String end) {
+    Queue<String> queue = <span class="code-keyword">new</span> LinkedList<>();
+    Map<String, String> parent = <span class="code-keyword">new</span> HashMap<>();
+    
+    queue.offer(<span class="code-string">"${args[0]}"</span>);
+    parent.put(<span class="code-string">"${args[0]}"</span>, <span class="code-keyword">null</span>);
+    
+    <span class="code-keyword">while</span> (!queue.isEmpty()) {
+        String current = queue.poll();
+        
+        <span class="code-keyword">if</span> (current.equals(<span class="code-string">"${args[1]}"</span>)) {
+            <span class="code-comment">// Reconstruct path</span>
+            List<String> path = <span class="code-keyword">new</span> ArrayList<>();
+            <span class="code-keyword">while</span> (current != <span class="code-keyword">null</span>) {
+                path.add(0, current);
+                current = parent.get(current);
+            }
+            <span class="code-keyword">return</span> path;
+        }
+        
+        <span class="code-keyword">for</span> (String neighbor : adjacencyList.get(current)) {
+            <span class="code-keyword">if</span> (!parent.containsKey(neighbor)) {
+                parent.put(neighbor, current);
+                queue.offer(neighbor);
+            }
+        }
+    }
+    <span class="code-keyword">return new</span> ArrayList<>(); <span class="code-comment">// No path</span>
+}`,
+
+                suggestFriends: `<span class="code-comment">// Friend Suggestions - "People You May Know"</span>
+<span class="code-keyword">public</span> List<String> <span class="code-function">suggestFriends</span>(String user) {
+    Set<String> friends = adjacencyList.get(<span class="code-string">"${args[0]}"</span>);
+    Map<String, Integer> scores = <span class="code-keyword">new</span> HashMap<>();
+    
+    <span class="code-comment">// Look at friends of friends</span>
+    <span class="code-keyword">for</span> (String friend : friends) {
+        <span class="code-keyword">for</span> (String fof : adjacencyList.get(friend)) {
+            <span class="code-keyword">if</span> (!fof.equals(user) && !friends.contains(fof)) {
+                <span class="code-comment">// Score = mutual friend count</span>
+                scores.merge(fof, 1, Integer::sum);
+            }
+        }
+    }
+    
+    <span class="code-comment">// Sort by score (most mutual first)</span>
+    <span class="code-keyword">return</span> scores.entrySet().stream()
+        .sorted((a, b) -> b.getValue() - a.getValue())
+        .map(Map.Entry::getKey)
+        .collect(Collectors.toList());
+}`
+            };
+            
+            codeDisplay.innerHTML = codes[operation] || '<span class="code-comment">// Select an operation</span>';
+        }
+    </script>
+</body>
+</html>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dark Truths of Social Media</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+            background: #000;
+            color: #fff;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px;
+        }
+
+        .header {
+            margin-bottom: 30px;
+        }
+
+        .page-title {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .page-subtitle {
+            color: #a8a8a8;
+            font-size: 16px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .nav-btn {
+            padding: 10px 16px;
+            background: #1a1a1a;
+            border: 1px solid #363636;
+            border-radius: 8px;
+            color: #a8a8a8;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .nav-btn:hover {
+            border-color: #667eea;
+            color: #fff;
+        }
+
+        .warning-banner {
+            background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
+            padding: 30px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .warning-title {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .warning-subtitle {
+            font-size: 14px;
+            color: #fecaca;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: #1a1a1a;
+            border: 1px solid #363636;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 32px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: #a8a8a8;
+            line-height: 1.5;
+        }
+
+        .truths-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .truth-card {
+            background: #1a1a1a;
+            border: 1px solid #363636;
+            border-radius: 12px;
+            padding: 25px;
+        }
+
+        .truth-number {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
+            border-radius: 50%;
+            font-weight: 700;
+            margin-bottom: 15px;
+        }
+
+        .truth-title {
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+
+        .truth-content {
+            font-size: 13px;
+            color: #a8a8a8;
+            line-height: 1.6;
+        }
+
+        .info-box {
+            background: #1a1a1a;
+            border-left: 4px solid #dc2626;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 30px 0;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        .info-box strong {
+            color: #fca5a5;
+        }
+
+        .info-box ul {
+            list-style: none;
+            padding-top: 10px;
+        }
+
+        .info-box li {
+            margin: 8px 0;
+        }
+
+        @media (max-width: 768px) {
+            .stats-grid, .truths-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="nav-links">
+            <a href="index.html" class="nav-btn">← Home</a>
+            <a href="social_media_dark_truths.html" class="nav-btn" style="background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%); border: none; color: #fff;">Dark Truths</a>
+            <a href="social_media_statistics.html" class="nav-btn">Statistics</a>
+        </div>
+
+        <div class="header">
+            <h1 class="page-title">Dark Truths of Social Media</h1>
+            <p class="page-subtitle">What you should know about how platforms manipulate you</p>
+        </div>
+
+        <div class="warning-banner">
+            <div class="warning-title">⚠️ Read This Carefully</div>
+            <div class="warning-subtitle">Understanding how social media companies profit from your attention and data</div>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-number">3.5B+</div>
+                <div class="stat-label">Active Users Worldwide</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">$115B</div>
+                <div class="stat-label">Annual Ad Revenue</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">4+ hrs</div>
+                <div class="stat-label">Average Daily Screen Time</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">98%</div>
+                <div class="stat-label">Profit from Ads</div>
+            </div>
+        </div>
+
+        <div class="truths-grid">
+            <div class="truth-card">
+                <div class="truth-number">1</div>
+                <div class="truth-title">Designed for Addiction</div>
+                <div class="truth-content">
+                    Every feature is engineered to keep you scrolling. Notifications, streaks, infinite scroll, variable rewards - these are the same tactics casinos use. The algorithm learns what makes YOU stop scrolling and shows you more of it.
+                </div>
+            </div>
+
+            <div class="truth-card">
+                <div class="truth-number">2</div>
+                <div class="truth-title">Your Data is Sold</div>
+                <div class="truth-content">
+                    Every like, search, location, contact you message - all is tracked and sold to advertisers. Companies pay billions to know exactly who you are, what you want, and how to manipulate you into buying things.
+                </div>
+            </div>
+
+            <div class="truth-card">
+                <div class="truth-number">3</div>
+                <div class="truth-title">Mental Health Crisis</div>
+                <div class="truth-content">
+                    Social media increases depression, anxiety, and low self-esteem - especially in teenagers. Constant comparison, fake lives, cyberbullying, and validation-seeking (likes/comments) damage real mental health.
+                </div>
+            </div>
+
+            <div class="truth-card">
+                <div class="truth-number">4</div>
+                <div class="truth-title">Filter Bubbles & Misinformation</div>
+                <div class="truth-content">
+                    Algorithm shows you what you want to see, not what's true. This creates "echo chambers" where you only see views similar to yours. Misinformation spreads 6x faster than truth on social media.
+                </div>
+            </div>
+
+            <div class="truth-card">
+                <div class="truth-number">5</div>
+                <div class="truth-title">Attention Theft</div>
+                <div class="truth-content">
+                    Social media is optimized to steal your attention from studying, family, health, and real relationships. You think you're checking for "5 minutes" but lose hours. Your productivity and real life suffer.
+                </div>
+            </div>
+
+            <div class="truth-card">
+                <div class="truth-number">6</div>
+                <div class="truth-title">Environmental Impact</div>
+                <div class="truth-content">
+                    Data centers powering social media consume enormous energy. Every video you watch, every post you like contributes to carbon emissions. The environmental cost of your digital life is massive.
+                </div>
+            </div>
+        </div>
+
+        <div class="info-box">
+            <strong>What You Should Do:</strong>
+            <ul>
+                <li>• Use time limits - set app time limits to 30 min/day</li>
+                <li>• Turn off notifications - reclaim your peace</li>
+                <li>• Delete the app - not the account, just the app</li>
+                <li>• Unfollow toxic accounts - curate better feeds</li>
+                <li>• Focus on real relationships - call friends instead</li>
+                <li>• Invest in hobbies - things that add real value</li>
+                <li>• Read critical - fact-check everything you see</li>
+                <li>• Protect your data - use privacy settings</li>
+            </ul>
+        </div>
+    </div>
+</body>
+</html>
